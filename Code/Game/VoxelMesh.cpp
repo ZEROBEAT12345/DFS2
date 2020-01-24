@@ -47,7 +47,7 @@ void VoxelMesh::LoadFromFiles(std::string filepath)
 
 		pos.x = (float)atof(elements[0].c_str());
 		pos.y = (float)atof(elements[1].c_str());
-		pos.z = (float)atof(elements[2].c_str());
+		pos.z = (float)atof(elements[2].c_str()) - 10.f;
 
 		color.r = (float)atof(elements[3].c_str()) / 255.f;
 		color.g = (float)atof(elements[4].c_str()) / 255.f;
@@ -69,6 +69,9 @@ CPUMesh* VoxelMesh::GenerateMesh()
 		AABB3 box = AABB3(v.pos - Vec3(0.5f, 0.5f, 0.5f), v.pos + Vec3(0.5f, 0.5f, 0.5f));
 		CPUMeshAddCube(voxelMesh, box, v.Color);
 	}
+	
+	Matrix44 axisMat = Matrix44("-z x y");
+	voxelMesh->ApplyTransform(axisMat);
 
 	return voxelMesh;
 }

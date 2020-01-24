@@ -1,0 +1,6 @@
+<material id="test">
+  <shader   src="Data/Shaders/Lit_NormalMap.shader"/>
+
+  <sampler idx="0" type="linear" />
+
+</material>

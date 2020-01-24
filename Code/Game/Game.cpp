@@ -152,6 +152,7 @@ void Game::Startup()
 	// Initialize 
 	m_mat = g_assetLoader->CreateOrGetMaterialFromXMLFile("Data/Materials/couch.mat");
 	m_mat = g_assetLoader->CreateOrGetMaterialFromXMLFile("Data/Materials/test.mat");
+	m_mat = g_assetLoader->CreateOrGetMaterialFromXMLFile("Data/Materials/voxel.mat");
 
 	// Bind event functions
 	EventArgs newEventArgs = EventArgs();
@@ -202,7 +203,7 @@ void Game::Startup()
 	quadModelMat.SetTranslation(Vec3(0.f, 0.f, 12.f));
 
 	m_testVoxel = new VoxelMesh();
-	m_testVoxel->LoadFromFiles("Data/Models/Ply/cube.ply");
+	m_testVoxel->LoadFromFiles("Data/Models/Ply/chr_sword.ply");
 	//m_testVoxel->AddVoxel(Vec3(0, 0, 0), Rgba::BLUE);
 	//m_testVoxel->AddVoxel(Vec3(0, 0, 1), Rgba::BLUE);
 	//m_testVoxel->AddVoxel(Vec3(0, 1, 0), Rgba::BLUE);
@@ -345,14 +346,14 @@ void Game::Render()
 
 	g_theRenderer->BindMaterial(m_mat);
 
-	g_theRenderer->BindModelMatrix(cubeModelMat);
-	g_theRenderer->DrawMesh(m_cube);
+	//g_theRenderer->BindModelMatrix(cubeModelMat);
+	//g_theRenderer->DrawMesh(m_cube);
 
 	//g_theRenderer->BindModelMatrix(sphereModelMat);
 	//g_theRenderer->DrawMesh(m_sphere);
 
-	g_theRenderer->BindModelMatrix(quadModelMat);
-	g_theRenderer->DrawMesh(m_quad);
+	//g_theRenderer->BindModelMatrix(quadModelMat);
+	//g_theRenderer->DrawMesh(m_quad);
 
 	g_theRenderer->BindModelMatrix(quadModelMat);
 	g_theRenderer->DrawMesh(m_vMesh);
