@@ -1,0 +1,8 @@
+<material id="effect">
+  <shader   src="Data/Shaders/Unlit_Effect_Tonemap.shader"/>
+
+  <diffuse  src="Data/Images/test_color.png" />
+
+  <sampler idx="0" type="linear" />
+
+</material>

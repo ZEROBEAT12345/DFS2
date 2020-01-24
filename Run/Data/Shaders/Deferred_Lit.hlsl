@@ -1,0 +1,77 @@
+// lit shader 00 - with only ambient and direction 
+#include "include/dot3_lighting.hlsl"
+
+cbuffer camera_constants : register(b2)
+{
+	float4x4 VIEW;
+	float4x4 PROJECTION;
+	float4 CAMPOS;
+};
+
+cbuffer model_constants : register(b3)
+{
+	float4x4 MODEL;
+};
+
+Texture2D<float4> tPosition : register(t0);
+Texture2D<float4> tAlbedo : register(t1);
+Texture2D<float4> tNormal : register(t2); 
+Texture2D<float4> tSpecular : register(t3); 
+SamplerState sAlbedo : register(s0);
+
+struct vs_input_t
+{
+   uint vertex_id        : SV_VertexID;
+};
+
+struct v2f_t
+{
+   float4 position         : SV_Position;
+   float2 uv               : UV; 
+};
+
+static const float3 FULLSCREEN_TRI[] = {
+   float3( -1.0f, -1.0f, 0.0f ),
+   float3(  3.0f, -1.0f, 0.0f ), 
+   float3( -1.0f,  3.0f, 0.0f )
+}; 
+
+static const float2 FULLSCREEN_UV[] = {
+   float2(  0.0f,  1.0f ),
+   float2(  2.0f,  1.0f ), 
+   float2(  0.0f, -1.0f )
+}; 
+
+//--------------------------------------------------------------------------------------
+// Vertex Shader
+v2f_t VertexFunction(vs_input_t input)
+{
+   v2f_t v2f = (v2f_t)0;
+
+   v2f.position   = float4( FULLSCREEN_TRI[input.vertex_id], 1.0f ); 
+   v2f.uv         = FULLSCREEN_UV[input.vertex_id];    
+
+   return v2f;
+}
+
+//--------------------------------------------------------------------------------------
+// Fragment Shader
+float4 FragmentFunction(v2f_t input) : SV_Target0
+{
+	float3 world_pos = tPosition.Sample(sAlbedo, input.uv).xyz;
+	float3 world_normal = tNormal.Sample(sAlbedo, input.uv).xyz;
+	float4 albedo_color = tAlbedo.Sample(sAlbedo, input.uv);
+	float4 specular_color = tSpecular.Sample(sAlbedo, input.uv);
+
+	// implement light - blinn phong
+	lighting_t light = GetLighting(CAMPOS.xyz,
+		world_pos,
+		world_normal);
+
+	float4 finalColor = albedo_color * float4(light.diffuse, 1.0f) + float4(light.specular, 0.0) * specular_color;
+
+	// float4 emissive = tEmissive.Sample(sAlbedo, input.uv) * 1.f;
+	// finalColor += float4(emissive.xyz * emissive.w, 0);
+
+	return finalColor;
+}

@@ -1,0 +1,5 @@
+<material id="terrain">
+  <shader src="Data/Shaders/Lit_NormalMap.shader" />
+  <diffuse src="Data/Images/Grass_DIFFU.png" />
+  <sampler idx="0" type="linear" />
+</material>

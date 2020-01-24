@@ -1,0 +1,8 @@
+<model id="building/towncenter">
+	<submesh src="Data/Models/towncenter.obj"
+		material="Data/Materials/towncenter.mat" 
+		invert="true"
+		tangents="true"
+		scale="0.01"
+		transform="-y -z -x" />
+</model>

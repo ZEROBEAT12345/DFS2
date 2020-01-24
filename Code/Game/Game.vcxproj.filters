@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="playable">
+      <UniqueIdentifier>{c8f6cb15-4756-4bf0-8678-7555083a86e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{21ef3ac4-f1c5-4d5f-8f4a-ce2dfa707a89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Shader">
+      <UniqueIdentifier>{6966afd0-eed5-4385-8b79-c6406b726c64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Shader\Include">
+      <UniqueIdentifier>{08d49b0f-24dc-4ed9-bb2c-ca1a8076b657}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Materials">
+      <UniqueIdentifier>{26910fa0-618a-4ed5-ad13-bc30aa7f23eb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main_Windows.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="App.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>playable</Filter>
+    </ClCompile>
+    <ClCompile Include="GameCommon.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App.hpp">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.hpp">
+      <Filter>playable</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCommon.hpp">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineBuildPreferences.hpp">
+      <Filter>Framework</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\Run\Data\Shaders\default_unlit.00.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\default_unlit.01.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\default_unlit.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\nop_color.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\ubo.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\vbo.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\default_lit.00.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\default_normalAsColor.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\include\dot3_lighting.hlsl">
+      <Filter>Data\Shader\Include</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\default_lit.projectTex.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\default_lit.normalMap.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\default_bitangentAsColor.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Run\Data\Shaders\default_tangentAsColor.hlsl">
+      <Filter>Data\Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\..\Run\Data\GameConfigs.xml">
+      <Filter>Data</Filter>
+    </Xml>
+    <Xml Include="..\..\Run\Data\Shaders\defaultUnlitShader.shader">
+      <Filter>Data\Shader</Filter>
+    </Xml>
+    <Xml Include="..\..\Run\Data\Shaders\defaultLitShader.shader">
+      <Filter>Data\Shader</Filter>
+    </Xml>
+    <Xml Include="..\..\Run\Data\Shaders\defaultNormalShader.shader">
+      <Filter>Data\Shader</Filter>
+    </Xml>
+    <Xml Include="..\..\Run\Data\Shaders\defaultShader.shader">
+      <Filter>Data\Shader</Filter>
+    </Xml>
+    <Xml Include="..\..\Run\Data\Shaders\ProjectedTexLitShader.shader">
+      <Filter>Data\Shader</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Run\Data\Materials\couch.mat">
+      <Filter>Data\Materials</Filter>
+    </None>
+    <None Include="..\..\Run\Data\Materials\example.mat">
+      <Filter>Data\Materials</Filter>
+    </None>
+    <None Include="..\..\Run\Data\Shaders\NormalMapLitShader.shader">
+      <Filter>Data\Shader</Filter>
+    </None>
+    <None Include="..\..\Run\Data\Shaders\defaultBitangentShader.shader">
+      <Filter>Data\Shader</Filter>
+    </None>
+    <None Include="..\..\Run\Data\Shaders\defaultTangentShader.shader">
+      <Filter>Data\Shader</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,8 @@
+<material id="deferred_test">
+  <shader   src="Data/Shaders/Deferred_NormalMap.shader"/>
+
+  <diffuse  src="Data/Images/Test_StbiFlippedAndOpenGL.png" />
+
+  <sampler idx="0" type="linear" />
+
+</material>

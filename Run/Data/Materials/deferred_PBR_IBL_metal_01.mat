@@ -1,0 +1,13 @@
+<material id="deferred_PBR_metal_01">
+
+  <shader src="Data/Shaders/Deferred_NormalMap_BRDF.shader" />
+  
+  <diffuse src="Data/Images/PBR/Metal07/Metal07_col.jpg" />
+  <normal  src="Data/Images/PBR/Metal07/Metal07_nrm.jpg" />
+  <metallic src="Data/Images/PBR/Metal07/Metal07_met.jpg" />
+  <roughness src="Data/Images/PBR/Metal07/Metal07_rgh.jpg" />
+  <!--<emissive src="Data/Images/woodcrate.png" />-->
+
+  <sampler idx="0" type="linear" />
+
+</material>

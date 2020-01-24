@@ -1,0 +1,8 @@
+<material id="tessellation">
+  <shader   src="Data/Shaders/_Template_Unlit_Tessellation.shader"/>
+
+  <diffuse  src="Data/Images/test_color.png" />
+
+  <sampler idx="0" type="linear" />
+
+</material>

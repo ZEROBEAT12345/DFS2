@@ -1,0 +1,8 @@
+<GameConfig
+	
+	windowsTitle="Protogame3D"
+	windowHeight="900"
+	windowAspect="1.5"
+	isFullscreen="false"
+	
+/>

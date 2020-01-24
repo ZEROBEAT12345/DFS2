@@ -1,0 +1,12 @@
+<material id="deferred_couch">
+
+  <shader src="Data/Shaders/Deferred_NormalMap.shader" />
+  
+  <diffuse src="Data/Images/example_colour.png" />
+  <normal  src="Data/Images/example_normal.png" />
+  <specular src="Data/Images/example_spec.png" />
+  <!--<emissive src="Data/Images/woodcrate.png" />-->
+
+  <sampler idx="0" type="linear" />
+
+</material>
