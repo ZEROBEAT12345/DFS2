@@ -9,6 +9,7 @@ class Scene;
 class Model;
 class SkyBox;
 class Cubemap;
+class VoxelMesh;
 
 class Game
 {
@@ -44,6 +45,8 @@ private:
 	GPUMesh* m_cube;
 	GPUMesh* m_sphere;
 	GPUMesh* m_quad;
+	VoxelMesh* m_testVoxel;
+	GPUMesh* m_vMesh;
 
 	// camera 
 	Vec3 m_cameraPos = Vec3::ZERO;

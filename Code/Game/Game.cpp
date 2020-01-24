@@ -1,5 +1,6 @@
 #include "Game/Game.hpp"
 #include "GameCommon.hpp"
+#include "Game/VoxelMesh.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/DevConsole.hpp"
@@ -200,6 +201,16 @@ void Game::Startup()
 	Matrix44 quadModelMat = Matrix44::identity;
 	quadModelMat.SetTranslation(Vec3(0.f, 0.f, 12.f));
 
+	m_testVoxel = new VoxelMesh();
+	m_testVoxel->LoadFromFiles("Data/Models/Ply/cube.ply");
+	//m_testVoxel->AddVoxel(Vec3(0, 0, 0), Rgba::BLUE);
+	//m_testVoxel->AddVoxel(Vec3(0, 0, 1), Rgba::BLUE);
+	//m_testVoxel->AddVoxel(Vec3(0, 1, 0), Rgba::BLUE);
+	//m_testVoxel->AddVoxel(Vec3(1, 0, 0), Rgba::BLUE);
+	m_vMesh = new GPUMesh(g_theRenderer->GetCTX());
+	CPUMesh* vMesh = m_testVoxel->GenerateMesh();
+	m_vMesh->CreateFromCPUMesh(vMesh, VERTEX_TYPE_LIGHT);
+
 	// Initialize camera config
 	cameraMovingDir = Vec3::ZERO;
 	cameraMovingSpeed = 10.0f;
@@ -225,33 +236,6 @@ void Game::Startup()
 	g_theRenderer->BindTextureViewWithSampler(1, g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/Test_StbiFlippedAndOpenGL.png"), 
 		g_assetLoader->CreateOrGetSampler("point"));
 
-	// Test debugrender
-
-	/*
-	DebugRenderPoint(20.0f, DEBUG_RENDER_ALWAYS, Vec3(10.f, 10.f, 3.f), Rgba::RED, Rgba::BLUE);
-	DebugRenderLine(-1.f, DEBUG_RENDER_USEDEPTH,
-		Vec3(0.f, 0.f, 0.f), Vec3(15.f, 15.f, 10.f),
-		Rgba::RED, Rgba::RED, 0.5f);
-	DebugRenderScreenPoint(20.0f, Vec2(675.f, 450.f), Rgba::RED, Rgba::MAGENTA);
-	DebugRenderScreenQuad(-1.f,
-		AABB2(Vec2(1150.f,200.f), Vec2(1350.f,0.f)),
-		Rgba::WHITE, Rgba::WHITE,
-		g_theRenderer->CreateOrGetTextureViewFromFile("Data/Images/Test_StbiFlippedAndOpenGL.png"));
-	DebugRenderScreenLine(-1.f,
-		Vec2(0.f, 800.f), Vec2(1350.f, 800.f),
-		Rgba::YELLOW, Rgba::YELLOW,
-		5.f);
-	DebugRenderQuad(-1.f, DEBUG_RENDER_XRAY, Vec3(1.f, 0.f, 14.f), AABB2(Vec2(-2.f, -2.f), Vec2(2.f, 2.f)), Rgba::WHITE, Rgba::WHITE, g_theRenderer->CreateOrGetTextureViewFromFile("Data/Images/Test_StbiFlippedAndOpenGL.png"));
-	DebugRenderQuad(100.0f, DEBUG_RENDER_ALWAYS, Vec3(5.f, 0.f, 14.f), AABB2(Vec2(-2.f, -2.f), Vec2(2.f, 2.f)), Rgba::WHITE, Rgba::WHITE, g_theRenderer->CreateOrGetTextureViewFromFile("Data/Images/Test_StbiFlippedAndOpenGL.png"));
-	DebugRenderQuad(100.0f, DEBUG_RENDER_USEDEPTH, Vec3(9.f, 0.f, 14.f), AABB2(Vec2(-2.f, -2.f), Vec2(2.f, 2.f)), Rgba::WHITE, Rgba::WHITE, g_theRenderer->CreateOrGetTextureViewFromFile("Data/Images/Test_StbiFlippedAndOpenGL.png"));
-	DebugRenderTextf(100.f, DEBUG_RENDER_ALWAYS, Vec3(5.f, 2.5f, 14.f), Vec2(.5f, .5f), 0.6f, 0.8f, Rgba::WHITE, Rgba::WHITE, "ALWAYS");
-	DebugRenderTextf(100.f, DEBUG_RENDER_USEDEPTH, Vec3(9.f, 2.5f, 14.f), Vec2(.5f, .5f), 0.6f, 0.8f, Rgba::WHITE, Rgba::WHITE, "USEDEPTH");
-	DebugRenderTextf(100.f, DEBUG_RENDER_XRAY, Vec3(1.f, 2.5f, 14.f), Vec2(.5f, .5f), 0.6f, 0.8f, Rgba::WHITE, Rgba::WHITE, "XRAY");
-	DebugRenderMessage(5.f, Rgba::WHITE, Rgba::WHITE, "TestMessage1");
-	DebugRenderMessage(15.f, Rgba::WHITE, Rgba::WHITE, "TestMessage2");
-	DebugRenderMessage(10.f, Rgba::WHITE, Rgba::WHITE, "TestMessage3");
-	DebugRenderWireSphere(-1.f, DEBUG_RENDER_USEDEPTH, Vec3(3.f, 0.f, 4.f), 2.f, Rgba::WHITE, Rgba::WHITE);
-	*/
 }
 
 void Game::Shutdown()
@@ -349,8 +333,6 @@ void Game::Render()
 	g_theRenderer->ClearDepthStencilTargetOnCamera(m_camera);
 	g_theRenderer->BindModelMatrix(Matrix44::identity);
 
-	//g_theRenderer->BindMaterial(g_theRenderer->CreateOrGetMaterialFromXMLFile("Data/Materials/PBR_metal_01.mat"));
-
 	float time = (float)GetCurrentTimeSeconds();
 	Matrix44 cubeModelMat = Matrix44::MakeYRotationDegrees(ConvertRadiansToDegrees(time));
 	cubeModelMat.SetTranslation(Vec3(-7.f, 0.f, 12.f));
@@ -366,11 +348,14 @@ void Game::Render()
 	g_theRenderer->BindModelMatrix(cubeModelMat);
 	g_theRenderer->DrawMesh(m_cube);
 
-	g_theRenderer->BindModelMatrix(sphereModelMat);
-	g_theRenderer->DrawMesh(m_sphere);
+	//g_theRenderer->BindModelMatrix(sphereModelMat);
+	//g_theRenderer->DrawMesh(m_sphere);
 
 	g_theRenderer->BindModelMatrix(quadModelMat);
 	g_theRenderer->DrawMesh(m_quad);
+
+	g_theRenderer->BindModelMatrix(quadModelMat);
+	g_theRenderer->DrawMesh(m_vMesh);
 
 	g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("white"), g_assetLoader->CreateOrGetSampler("linear"));
 
