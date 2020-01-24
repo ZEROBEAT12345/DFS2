@@ -70,8 +70,10 @@ CPUMesh* VoxelMesh::GenerateMesh()
 		CPUMeshAddCube(voxelMesh, box, v.Color);
 	}
 	
-	Matrix44 axisMat = Matrix44("-z x y");
+	Matrix44 axisMat = Matrix44("x z y");
 	voxelMesh->ApplyTransform(axisMat);
+
+	voxelMesh->ApplyInvert();
 
 	return voxelMesh;
 }

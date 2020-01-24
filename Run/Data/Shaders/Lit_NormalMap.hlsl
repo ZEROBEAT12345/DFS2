@@ -96,14 +96,14 @@ float4 FragmentFunction(v2f_t input) : SV_Target0
 		input.worldPos,
 		world_normal);
 
-	float4 finalColor = texColor * float4(light.diffuse, 1.0) * input.color + float4(light.specular, 0.0);
+	float4 finalColor = texColor * float4(light.diffuse, 1.0) * input.color;// + float4(light.specular, 0.0);
 	//float4 finalColor = normal_color;
 	//float4 finalColor = texColor;
 	//float4 finalColor = float4((normalize(CAMPOS.xyz) + float3(1.0, 1.0, 1.0)) / 2, 1.0);
 
 	//float4 emissive = tEmissive.Sample(sAlbedo, input.uv) * EMISSIVE_FACTOR;
-	float4 emissive = tEmissive.Sample(sAlbedo, input.uv) * 1.f;
-	finalColor += float4(emissive.xyz * emissive.w, 0);
+	// float4 emissive = tEmissive.Sample(sAlbedo, input.uv) * 1.f;
+	// finalColor += float4(emissive.xyz * emissive.w, 0);
 
 	// output it; 
 	return finalColor;
