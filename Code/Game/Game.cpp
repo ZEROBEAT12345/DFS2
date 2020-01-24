@@ -202,15 +202,28 @@ void Game::Startup()
 	Matrix44 quadModelMat = Matrix44::identity;
 	quadModelMat.SetTranslation(Vec3(0.f, 0.f, 12.f));
 
-	m_testVoxel = new VoxelMesh();
-	m_testVoxel->LoadFromFiles("Data/Models/Ply/chr_sword.ply");
-	//m_testVoxel->AddVoxel(Vec3(0, 0, 0), Rgba::BLUE);
-	//m_testVoxel->AddVoxel(Vec3(0, 0, 1), Rgba::BLUE);
-	//m_testVoxel->AddVoxel(Vec3(0, 1, 0), Rgba::BLUE);
-	//m_testVoxel->AddVoxel(Vec3(1, 0, 0), Rgba::BLUE);
-	m_vMesh = new GPUMesh(g_theRenderer->GetCTX());
-	CPUMesh* vMesh = m_testVoxel->GenerateMesh();
-	m_vMesh->CreateFromCPUMesh(vMesh, VERTEX_TYPE_LIGHT);
+	std::string vMeshPath[4] =
+	{
+		"Data/Models/Ply/chr_sword.ply",
+		"Data/Models/Ply/chr_knight.ply",
+		"Data/Models/Ply/chr_sword.ply",
+		"Data/Models/Ply/chr_knight.ply"
+	};
+
+	for(int i = 0 ; i< 4; i++)
+	{
+		m_charVoxel[i] = new VoxelMesh();
+		m_charVoxel[i]->LoadFromFiles(vMeshPath[i]);
+		m_vMesh[i] = new GPUMesh(g_theRenderer->GetCTX());
+		CPUMesh* vMesh = m_charVoxel[i]->GenerateMesh();
+		m_vMesh[i]->CreateFromCPUMesh(vMesh, VERTEX_TYPE_LIGHT);
+	}
+
+	m_terrainVoxel = new VoxelMesh();
+	m_terrainVoxel->LoadFromFiles("Data/Models/Ply/terrain.ply");
+	m_tMesh = new GPUMesh(g_theRenderer->GetCTX());
+	CPUMesh* tMesh = m_terrainVoxel->GenerateMesh();
+	m_tMesh->CreateFromCPUMesh(tMesh, VERTEX_TYPE_LIGHT);
 
 	// Initialize camera config
 	cameraMovingDir = Vec3::ZERO;
@@ -249,6 +262,15 @@ void Game::Shutdown()
 
 	delete m_quad;
 	m_quad = nullptr;
+
+	for (int i = 0; i < 4; i++)
+	{
+		delete m_vMesh[i];
+		m_vMesh[i] = nullptr;
+	}
+
+	delete m_tMesh;
+	m_tMesh = nullptr;
 
 	delete m_projector;
 	m_projector = nullptr;
@@ -332,7 +354,7 @@ void Game::Render()
 
 	g_theRenderer->ClearScreen(Rgba(0.1f,0.1f,0.1f,1.f));
 	g_theRenderer->ClearDepthStencilTargetOnCamera(m_camera);
-	g_theRenderer->BindModelMatrix(Matrix44::identity);
+	g_theRenderer->BindMaterial(m_mat);
 
 	float time = (float)GetCurrentTimeSeconds();
 	Matrix44 cubeModelMat = Matrix44::MakeYRotationDegrees(ConvertRadiansToDegrees(time));
@@ -344,19 +366,18 @@ void Game::Render()
 	Matrix44 quadModelMat = Matrix44::identity;
 	quadModelMat.SetTranslation(Vec3(0.f, 0.f, 12.f));
 
-	g_theRenderer->BindMaterial(m_mat);
+	Matrix44 vmat[4];
+	for (int i = 0; i < 4; i++)
+	{
+		vmat[i].SetTranslation(Vec3(-24.f + 12.f * i, 0.f, 12.f));
+		g_theRenderer->BindModelMatrix(vmat[i]);
+		g_theRenderer->DrawMesh(m_vMesh[i]);
+	}
 
-	//g_theRenderer->BindModelMatrix(cubeModelMat);
-	//g_theRenderer->DrawMesh(m_cube);
-
-	//g_theRenderer->BindModelMatrix(sphereModelMat);
-	//g_theRenderer->DrawMesh(m_sphere);
-
-	//g_theRenderer->BindModelMatrix(quadModelMat);
-	//g_theRenderer->DrawMesh(m_quad);
-
-	g_theRenderer->BindModelMatrix(quadModelMat);
-	g_theRenderer->DrawMesh(m_vMesh);
+	Matrix44 terrainModelMat = Matrix44::identity;
+	terrainModelMat.SetTranslation(Vec3(0.f, -3.f, 12.f));
+	g_theRenderer->BindModelMatrix(terrainModelMat);
+	g_theRenderer->DrawMesh(m_tMesh);
 
 	g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("white"), g_assetLoader->CreateOrGetSampler("linear"));
 

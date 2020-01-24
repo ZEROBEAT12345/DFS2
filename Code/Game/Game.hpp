@@ -45,8 +45,10 @@ private:
 	GPUMesh* m_cube;
 	GPUMesh* m_sphere;
 	GPUMesh* m_quad;
-	VoxelMesh* m_testVoxel;
-	GPUMesh* m_vMesh;
+	VoxelMesh* m_charVoxel[4];
+	VoxelMesh* m_terrainVoxel;
+	GPUMesh* m_vMesh[4];
+	GPUMesh* m_tMesh;
 
 	// camera 
 	Vec3 m_cameraPos = Vec3::ZERO;

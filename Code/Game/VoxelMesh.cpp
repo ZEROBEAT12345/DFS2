@@ -47,7 +47,7 @@ void VoxelMesh::LoadFromFiles(std::string filepath)
 
 		pos.x = (float)atof(elements[0].c_str());
 		pos.y = (float)atof(elements[1].c_str());
-		pos.z = (float)atof(elements[2].c_str()) - 10.f;
+		pos.z = (float)atof(elements[2].c_str());
 
 		color.r = (float)atof(elements[3].c_str()) / 255.f;
 		color.g = (float)atof(elements[4].c_str()) / 255.f;
