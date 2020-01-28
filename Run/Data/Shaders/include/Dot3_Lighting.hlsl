@@ -43,7 +43,7 @@ lighting_t GetLighting(float3 eye_pos,
 	lighting_t lighting;
 	float3 ambient = AMBIENT.xyz * AMBIENT.w;
 	//lighting.diffuse = ambient;
-	lighting.diffuse = float3(0.f,0.f,0.f);
+	lighting.diffuse = float3(0.05f,0.05f,0.05f);
 
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{

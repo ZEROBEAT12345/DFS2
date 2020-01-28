@@ -204,10 +204,10 @@ void Game::Startup()
 
 	std::string vMeshPath[4] =
 	{
-		"Data/Models/Ply/chr_sword.ply",
-		"Data/Models/Ply/chr_knight.ply",
-		"Data/Models/Ply/chr_sword.ply",
-		"Data/Models/Ply/chr_knight.ply"
+		"Data/Models/Ply/Newton.ply",
+		"Data/Models/Ply/Newton.ply",
+		"Data/Models/Ply/Newton.ply",
+		"Data/Models/Ply/Newton.ply"
 	};
 
 	for(int i = 0 ; i< 4; i++)
@@ -234,6 +234,7 @@ void Game::Startup()
 	//m_camera->SetPerspectiveProjection(90.f, g_gameConfigBackround.GetValue("windowAspect", 1.777777f), 0.1f, 1000.f);
 	m_camera->SetPerspectiveProjection(90.f, windowAspect, 0.1f, 1000.f);
 	m_camera->SetColorTargetView(rtv);
+	m_cameraPos = Vec3(0.f, 50.f, -50.f);
 
 	// Intialize light config
 	g_theRenderer->SetAmbientLight(1.0);
@@ -312,6 +313,10 @@ void Game::Update(float deltaSeconds)
 
 	//g_theEventSystem->FireEvent("allocCount");
 	DebugRenderMessage(0.f, Rgba::RED, Rgba::RED, GetSizeString(MemTrackGetLiveByteCount()).c_str());
+
+	// Change direction light
+	xzAngle += deltaSeconds * 30.f;
+	g_theRenderer->SetDirLightDir(Vec3(CosDegrees(xzAngle), -1.f, SinDegrees(xzAngle)));
 }
 
 void Game::Render()
@@ -370,6 +375,7 @@ void Game::Render()
 	for (int i = 0; i < 4; i++)
 	{
 		vmat[i].SetTranslation(Vec3(-24.f + 12.f * i, 0.f, 12.f));
+		//vmat[i].MakeRotationForEulerXZY(Vec3(0.f, 0.f, 0.f), Vec3(-24.f + 12.f * i, 0.f, 12.f));
 		g_theRenderer->BindModelMatrix(vmat[i]);
 		g_theRenderer->DrawMesh(m_vMesh[i]);
 	}

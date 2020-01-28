@@ -52,7 +52,7 @@ private:
 
 	// camera 
 	Vec3 m_cameraPos = Vec3::ZERO;
-	float cameraXangle = 0.f;
+	float cameraXangle = 50.f;
 	float cameraYangle = 0.f;
 	Vec3 cameraRotateSpeed;
 	float cameraMovingSpeed;
@@ -63,6 +63,7 @@ private:
 	bool cameraMoveRight = false;
 
 	// light
+	float xzAngle = 0.f;
 	float ambientChangeAmount = 0.f;
 	float ambientLightVolume = 1.f;
 };
