@@ -40,6 +40,9 @@
     <ClCompile Include="VoxelMesh.cpp">
       <Filter>Render</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerController.cpp">
+      <Filter>playable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -56,6 +59,9 @@
     </ClInclude>
     <ClInclude Include="VoxelMesh.hpp">
       <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerController.hpp">
+      <Filter>playable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

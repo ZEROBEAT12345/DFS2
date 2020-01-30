@@ -96,23 +96,6 @@ App::~App()
 void App::Startup()
 {
 	LogSystemStartup("Data/testLog.txt");
-	//int i = 20;
-	//size_t size;
-	//void* buffer = g_ringBuffer->TryLockWrite(sizeof(int));
-	//memcpy(buffer, &i, sizeof(int));
-	//g_ringBuffer->UnlockWrite(buffer);
-	//void* readBuf = g_ringBuffer->TryLockRead(&size);
-	//int newI = *((int*)readBuf);
-	//g_ringBuffer->UnlockRead(readBuf);
-
-	//int j = 30;
-	//size_t sizeB;
-	//void* bufferB = g_ringBuffer->TryLockWrite(sizeof(int));
-	//memcpy(bufferB, &i, sizeof(int));
-	//g_ringBuffer->UnlockWrite(bufferB);
-	//void* readBufB = g_ringBuffer->TryLockRead(&size);
-	//int newJ = *((int*)readBufB);
-	//g_ringBuffer->UnlockRead(readBufB);
 
 	g_random = new RandomNumberGenerator();
 
@@ -151,17 +134,14 @@ void App::Startup()
 	m_timeLastframebegan = 0.f;
 	m_timeThisframebegan = 0.f;
 
-	UnitTestRunAllCategories(0);
-	//UnitTestsRun("test");
+	/*Test LogSystem*/
+	//LogHook(TestLogHook);
+	//AddLogFilter("Warning");
 
-
-	LogHook(TestLogHook);
-	AddLogFilter("Warning");
-
-	Logf("test", "Log System Initialize");
-	Logf("Test", "TestMessage 1");
-	LogFlush();
-	Logf("Warning", "TestMessage 2");
+	//Logf("test", "Log System Initialize");
+	//Logf("Test", "TestMessage 1");
+	//LogFlush();
+	//Logf("Warning", "TestMessage 2");
 }
 
 void App::Shutdown()
@@ -301,7 +281,6 @@ bool App::HandleCharRequested(unsigned char keyCode)
 	if (!m_isDevConsoleOn)
 		return false;
 
-	//if( ( keyCode >= 65 && keyCode <= 90 ) || (keyCode >= 48 && keyCode <= 57))
 	if( (keyCode >= 'a' && keyCode <= 'z') || (keyCode >= 'A' || keyCode <= 'Z') || ( keyCode >= '0' || keyCode <= '9') || keyCode == KEY_SPACEBAR )
 		g_theDevConsole->AddLetterToInputField(keyCode);
 	return false;

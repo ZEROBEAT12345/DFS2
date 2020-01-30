@@ -76,14 +76,14 @@ float4 FragmentFunction(v2f_t input) : SV_Target0
 
 	float3 vertex_normal =  normalize(input.normal);
 
-	float4 texColor = tAlbedo.Sample(sAlbedo, input.uv);
+	//float4 texColor = tAlbedo.Sample(sAlbedo, input.uv);
 
 	// implement light - blinn phong
 	lighting_t light = GetLighting(CAMPOS.xyz,
 		input.worldPos,
 		vertex_normal);
 
-	float4 finalColor = texColor * float4(light.diffuse, 1.0f) * input.color;// + float4(light.specular, 0.0);
+	float4 finalColor = float4(light.diffuse, 1.0f) * input.color;// + float4(light.specular, 0.0);
 
 	// output it; 
 	return finalColor;
