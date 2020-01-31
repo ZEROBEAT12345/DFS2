@@ -1,4 +1,5 @@
-Log System Initialize
+LogSystemShutdown
+ze
 TestMessage 1
 LogSystemShutdown
 s Total% TotalTime Self% SelfTime AllocCount AllocByte FreeCount FreeByte

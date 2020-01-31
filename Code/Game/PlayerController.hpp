@@ -1,13 +1,13 @@
 #pragma once
 #include "Engine/Math/Vec2.hpp"
 
-class VoxelGrid;
+class VoxelMesh;
 class GPUMesh;
 
 struct PlayerAttrib
 {
 	int maxHealth;
-	float movingSpeed;
+	float movingSpeed = 10.f;
 	int attack;
 	int armor;
 	int colliderSize;
@@ -16,7 +16,7 @@ struct PlayerAttrib
 class PlayerController
 {
 public:
-	PlayerController() {}
+	PlayerController(int controllerID) : m_controllerID(controllerID) {}
 	~PlayerController();
 
 	void BeginFrame();
@@ -26,7 +26,13 @@ public:
 	void Initialize();
 	void AddModel(std::string modelPath);
 
+	// Input
+	bool IsInputFrozen() const { return m_isFrozen; };
+	void SetFreezeInput(bool isFreeze);
+	void HandleJoystickInput(float deltaSeconds);
+
 	// Gameplay
+	void UseSkill(int skillID);
 
 public:
 	// Attribute
@@ -36,11 +42,13 @@ private:
 	// Status
 	Vec2 m_pos = Vec2(0.f,0.f);
 	float m_forwardAngle = 0.f;
+	float m_height = 0.f;
 
-	VoxelGrid* m_voxel;
-	GPUMesh* m_mesh;
+	VoxelMesh* m_voxel = nullptr;
+	GPUMesh* m_mesh = nullptr;
 
-	int m_curHealth;
+	int m_curHealth = 0;
+	bool m_isFrozen = false;
 	
-	int m_controllerIdx = 0;
+	int m_controllerID = -1;
 };

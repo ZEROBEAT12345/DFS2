@@ -219,6 +219,8 @@
     <ClCompile Include="GameCommon.cpp" />
     <ClCompile Include="Main_Windows.cpp" />
     <ClCompile Include="PlayerController.cpp" />
+    <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="SkillBase.cpp" />
     <ClCompile Include="VoxelMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +229,8 @@
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="GameCommon.hpp" />
     <ClInclude Include="PlayerController.hpp" />
+    <ClInclude Include="Projectile.hpp" />
+    <ClInclude Include="SkillBase.hpp" />
     <ClInclude Include="VoxelMesh.hpp" />
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,9 @@ class Model;
 class SkyBox;
 class Cubemap;
 class VoxelMesh;
+class PlayerController;
+
+#define MAX_PLAYER_NUM 2
 
 class Game
 {
@@ -31,17 +34,14 @@ public:
 	void AdjustAmbient(float deltaTime);
 	void SetAmbientChangeAmount(float amount);
 
-	// Projector
-	void SetProjector(Camera* projector);
-
 private:
 	Camera* m_camera;
-	Camera* m_projector;
 	Pipeline* m_shader;
 	Material* m_mat;
 
+	PlayerController* m_players[MAX_PLAYER_NUM];
+
 	// Test mesh
-	//Scene* m_testScene;
 	GPUMesh* m_cube;
 	GPUMesh* m_sphere;
 	GPUMesh* m_quad;

@@ -1,6 +1,3 @@
-#include "Game/Game.hpp"
-#include "GameCommon.hpp"
-#include "Game/VoxelMesh.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/DevConsole.hpp"
@@ -21,6 +18,10 @@
 #include "Engine/Render/Utils/SpriteSheet.hpp"
 #include "Engine/Render/Utils/BitmapFont.hpp"
 #include "Engine/Render/Utils/Camera.hpp"
+#include "Game/Game.hpp"
+#include "GameCommon.hpp"
+#include "Game/VoxelMesh.hpp"
+#include "Game/PlayerController.hpp"
 //#include "Engine/Tools/FBXImporter.hpp"
 #include <vector>
 
@@ -150,16 +151,9 @@ Game::~Game()
 void Game::Startup()
 {
 	// Initialize 
-	m_mat = g_assetLoader->CreateOrGetMaterialFromXMLFile("Data/Materials/couch.mat");
-	m_mat = g_assetLoader->CreateOrGetMaterialFromXMLFile("Data/Materials/test.mat");
 	m_mat = g_assetLoader->CreateOrGetMaterialFromXMLFile("Data/Materials/voxel.mat");
 
 	// Bind event functions
-	EventArgs newEventArgs = EventArgs();
-	g_theEventSystem->SubscribeEventCallbackFunction("test", TestEvent);
-	g_theEventSystem->SubscribeEventCallbackFunction("test", TestEvent2);
-	g_theEventSystem->FireEvent("test");
-	g_theEventSystem->FireEvent("test", newEventArgs);
 
 	g_theEventSystem->SubscribeEventCallbackFunction("DebugOn", TurnOnDebugRender);
 	g_theEventSystem->SubscribeEventCallbackFunction("DebugOff", TurnOffDebugRender);
@@ -176,31 +170,6 @@ void Game::Startup()
 	g_theEventSystem->SubscribeEventCallbackFunction("TestLog", TestLog);
 
 	// Initialize test scene
-	CPUMesh mesh;
-	AABB3 cube = AABB3(Vec3(-3.f, -3.f, -3.f), Vec3(3.f, 3.f, 3.f));
-	CPUMeshAddCube(&mesh, cube);
-	m_cube = new GPUMesh(g_theRenderer->GetCTX());
-	m_cube->CreateFromCPUMesh(&mesh, VERTEX_TYPE_LIGHT);
-	float time = (float)GetCurrentTimeSeconds();
-	Matrix44 cubeModelMat = Matrix44::MakeYRotationDegrees(ConvertRadiansToDegrees(time));
-	//Matrix44 cubeModelMat = Matrix44::identity;
-	cubeModelMat.SetTranslation(Vec3(-7.f, 0.f, 12.f));
-
-	CPUMesh mesh2;
-	CPUMeshAddUVSphere(&mesh2, Vec3(0.f, 0.f, 0.f), 3, 360, 180);
-	m_sphere = new GPUMesh(g_theRenderer->GetCTX());
-	m_sphere->CreateFromCPUMesh(&mesh2, VERTEX_TYPE_LIGHT); // we won't be updated this;
-	//float time = (float)GetCurrentTimeSeconds();
-	//Matrix44 sphereModelMat = Matrix44::MakeYRotationDegrees(ConvertRadiansToDegrees(time));
-	Matrix44 sphereModelMat = Matrix44::identity;
-	sphereModelMat.SetTranslation(Vec3(7.f, 0.f, 12.f));
-
-	CPUMesh mesh3;
-	CPUMeshAddBox2D(&mesh3, AABB2(Vec2(-3.f, -3.f), Vec2(3.f, 3.f)), Rgba::WHITE, Vec2::ZERO, Vec2::ONE);
-	m_quad = new GPUMesh(g_theRenderer->GetCTX());
-	m_quad->CreateFromCPUMesh(&mesh3, VERTEX_TYPE_LIGHT);
-	Matrix44 quadModelMat = Matrix44::identity;
-	quadModelMat.SetTranslation(Vec3(0.f, 0.f, 12.f));
 
 	std::string vMeshPath[4] =
 	{
@@ -236,33 +205,25 @@ void Game::Startup()
 	m_camera->SetColorTargetView(rtv);
 	m_cameraPos = Vec3(0.f, 50.f, -50.f);
 
-	// Intialize light config
+	// Initialize light config
 	g_theRenderer->SetAmbientLight(1.0);
 
-	// Initialize projector
-	m_projector = new Camera();
-	//m_projector->SetPerspectiveProjection(90, g_gameConfigBackround.GetValue("windowAspect", 1.777777f), 0.1f, 1000.f);
-	m_projector->SetPerspectiveProjection(90, windowAspect, 0.1f, 1000.f);
-	m_projector->SetColorTargetView(rtv);
-	Matrix44 cameraMat = Matrix44::MakeRotationForEulerXZY(Vec3(0.f, 0.f, 0.f), Vec3(0.f, 0.f, 0.f));
-	m_projector->SetModelMatrix(cameraMat);
-
-	SetProjector(m_projector);
-	g_theRenderer->BindTextureViewWithSampler(1, g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/Test_StbiFlippedAndOpenGL.png"), 
-		g_assetLoader->CreateOrGetSampler("point"));
-
+	// Initialize Player
+	for(int i = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		m_players[i] = new PlayerController(i);
+		m_players[i]->Initialize();
+		m_players[i]->AddModel("Data/Models/Ply/Newton.ply");
+	}
 }
 
 void Game::Shutdown()
 {
-	delete m_cube;
-	m_cube = nullptr;
-
-	delete m_sphere;
-	m_sphere = nullptr;
-
-	delete m_quad;
-	m_quad = nullptr;
+	for (int i = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		delete m_players[i];
+		m_players[i] = nullptr;
+	}
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -273,20 +234,13 @@ void Game::Shutdown()
 	delete m_tMesh;
 	m_tMesh = nullptr;
 
-	delete m_projector;
-	m_projector = nullptr;
-
 	delete m_camera;
 	m_camera = nullptr;
 }
 
 void Game::Update(float deltaSeconds)
 {
-
-	// Update camera configs
-	//DebugRenderScreenTextf(0.f, Vec2(1150.f, 210.f), Vec2(.5f, .5f), 10.f, 0.8f, Rgba::WHITE, Rgba::WHITE, "CurTime: %f", GetCurrentTimeSeconds());
-	//DebugRenderMessage(0.f, Rgba::WHITE, Rgba::WHITE, "CurTime: %f", GetCurrentTimeSeconds());
-
+	// Update camera config
 	cameraMovingDir = Vec3::ZERO;
 	if (cameraMoveFront)
 		cameraMovingDir += Vec3(0.f, 0.f, 1.f);
@@ -304,6 +258,16 @@ void Game::Update(float deltaSeconds)
 	Vec3 cameraLocalTrans = cameraMovingDir * cameraMovingSpeed * deltaSeconds;
 	Vec4 cameraWorldTrans = cameraRotateMat * Vec4(cameraLocalTrans.x, cameraLocalTrans.y, cameraLocalTrans.z, 0.f);
 	m_cameraPos += Vec3(cameraWorldTrans.x, cameraWorldTrans.y, cameraWorldTrans.z);
+
+
+	IntVec2 mouseTrans = g_theWindow->GetClientMouseRelativePositon();
+	float Yangle = mouseTrans.x / 10.f;
+	float Xangle = mouseTrans.y / 10.f;
+	cameraXangle += Xangle;
+	cameraYangle += Yangle;
+
+	Matrix44 cameraMat = Matrix44::MakeRotationForEulerXZY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
+	m_camera->SetModelMatrix(cameraMat);
 	
 	// Update light configs
 	AdjustAmbient(deltaSeconds);
@@ -317,59 +281,22 @@ void Game::Update(float deltaSeconds)
 	// Change direction light
 	xzAngle += deltaSeconds * 30.f;
 	g_theRenderer->SetDirLightDir(Vec3(CosDegrees(xzAngle), -1.f, SinDegrees(xzAngle)));
+
+	for (int i = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		m_players[i]->Update(deltaSeconds);
+	}
 }
 
 void Game::Render()
 {
 	g_theRenderer->ClearScreen(Rgba(0.f,0.f,0.f,1.f));
 
-	Matrix44 tonemapMat = Matrix44::identity;
-	tonemapMat.s[ix] = 0.33f;
-	tonemapMat.s[iy] = 0.33f;
-	tonemapMat.s[iz] = 0.33f;
-	tonemapMat.s[jx] = 0.33f;
-	tonemapMat.s[jy] = 0.33f;
-	tonemapMat.s[jz] = 0.33f;
-	tonemapMat.s[kx] = 0.33f;
-	tonemapMat.s[ky] = 0.33f;
-	tonemapMat.s[kz] = 0.33f;
-	float tonemapS = 1.f;
-	TonemapBufferT curTonemapStruct = TonemapBufferT{
-		tonemapMat,
-		tonemapS,
-		Vec3::ZERO
-	};
-	//m_tonemapBuffer->CopyCPUToGPU(&curTonemapStruct, sizeof(TonemapBufferT));
-
-	// Update camera info
-	IntVec2 mouseTrans = g_theWindow->GetClientMouseRelativePositon();
-	float Yangle =  mouseTrans.x / 10.f;
-	float Xangle =  mouseTrans.y / 10.f;
-	cameraXangle += Xangle;
-	cameraYangle += Yangle;
-
-	Matrix44 cameraMat = Matrix44::MakeRotationForEulerXZY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
-	m_camera->SetModelMatrix(cameraMat);
-
-	//m_testScene->SetCamera(m_camera);
-
-	//g_theRenderer->DrawScene(m_testScene);
-
 	g_theRenderer->BeginCamera(*m_camera);
 
 	g_theRenderer->ClearScreen(Rgba(0.1f,0.1f,0.1f,1.f));
 	g_theRenderer->ClearDepthStencilTargetOnCamera(m_camera);
 	g_theRenderer->BindMaterial(m_mat);
-
-	float time = (float)GetCurrentTimeSeconds();
-	Matrix44 cubeModelMat = Matrix44::MakeYRotationDegrees(ConvertRadiansToDegrees(time));
-	cubeModelMat.SetTranslation(Vec3(-7.f, 0.f, 12.f));
-
-	Matrix44 sphereModelMat = Matrix44::identity;
-	sphereModelMat.SetTranslation(Vec3(7.f, 0.f, 12.f));
-
-	Matrix44 quadModelMat = Matrix44::identity;
-	quadModelMat.SetTranslation(Vec3(0.f, 0.f, 12.f));
 
 	Matrix44 vmat[4];
 	for (int i = 0; i < 4; i++)
@@ -384,6 +311,11 @@ void Game::Render()
 	terrainModelMat.SetTranslation(Vec3(0.f, -3.f, 12.f));
 	g_theRenderer->BindModelMatrix(terrainModelMat);
 	g_theRenderer->DrawMesh(m_tMesh);
+
+	for (int i = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		m_players[i]->Render();
+	}
 
 	g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("white"), g_assetLoader->CreateOrGetSampler("linear"));
 
@@ -491,19 +423,4 @@ void Game::AdjustAmbient(float deltaTime)
 void Game::SetAmbientChangeAmount(float amount)
 {
 	ambientChangeAmount = amount;
-}
-
-void Game::SetProjector(Camera* projector)
-{
-	m_projector = projector;
-
-	ProjectorBufferT curProjectorStruct = ProjectorBufferT
-	{
-		m_projector->GetViewMatrix(),
-		m_projector->GetProjectionMatrix(),
-		m_projector->GetModelMatrix().GetVecT()
-	};
-
-	// Update buffer on mat
-	//m_projectorBuffer->CopyCPUToGPU(&curProjectorStruct, sizeof(ProjectorBufferT));
 }

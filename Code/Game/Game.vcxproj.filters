@@ -23,6 +23,18 @@
     <Filter Include="Render">
       <UniqueIdentifier>{337d1d19-f49b-49d3-9922-67ff6a5e0186}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Tables">
+      <UniqueIdentifier>{88c4bd84-a38d-4c68-af3d-e57a23ccafa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay">
+      <UniqueIdentifier>{89c4bf73-b0a8-41a2-8050-d3db5f5c4e1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\01-Newton">
+      <UniqueIdentifier>{fbb9717e-af59-4be5-88dc-2deee5edbb0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\02-IndianaJones">
+      <UniqueIdentifier>{d60d00e2-583c-4e97-8456-4e540c4a94b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main_Windows.cpp">
@@ -43,6 +55,12 @@
     <ClCompile Include="PlayerController.cpp">
       <Filter>playable</Filter>
     </ClCompile>
+    <ClCompile Include="SkillBase.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="Projectile.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -62,6 +80,12 @@
     </ClInclude>
     <ClInclude Include="PlayerController.hpp">
       <Filter>playable</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillBase.hpp">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Projectile.hpp">
+      <Filter>Gameplay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
