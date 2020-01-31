@@ -29,12 +29,6 @@
     <Filter Include="Gameplay">
       <UniqueIdentifier>{89c4bf73-b0a8-41a2-8050-d3db5f5c4e1e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Gameplay\01-Newton">
-      <UniqueIdentifier>{fbb9717e-af59-4be5-88dc-2deee5edbb0d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Gameplay\02-IndianaJones">
-      <UniqueIdentifier>{d60d00e2-583c-4e97-8456-4e540c4a94b9}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main_Windows.cpp">
@@ -61,6 +55,9 @@
     <ClCompile Include="Projectile.cpp">
       <Filter>Gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="ProjectileDef.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -85,6 +82,9 @@
       <Filter>Gameplay</Filter>
     </ClInclude>
     <ClInclude Include="Projectile.hpp">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectileDef.hpp">
       <Filter>Gameplay</Filter>
     </ClInclude>
   </ItemGroup>

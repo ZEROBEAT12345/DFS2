@@ -83,6 +83,7 @@ float4 FragmentFunction(v2f_t input) : SV_Target0
 		input.worldPos,
 		vertex_normal);
 
+	//float4 finalColor = input.color;
 	float4 finalColor = float4(light.diffuse, 1.0f) * input.color;// + float4(light.specular, 0.0);
 
 	// output it; 

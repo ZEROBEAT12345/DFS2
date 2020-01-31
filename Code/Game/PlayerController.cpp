@@ -28,7 +28,8 @@ void PlayerController::Update(float deltaSeconds)
 void PlayerController::Render()
 {
 	Matrix44 curMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
-	curMat.SetTranslation(Vec3(m_pos.x, 0.f, m_pos.y));
+	curMat.SetTranslation(Vec3(m_pos.x, 5.f, m_pos.y));
+	//curMat.SetTranslation(Vec3(m_pos.x, 5.f, 10.f));
 	g_theRenderer->BindModelMatrix(curMat);
 	g_theRenderer->DrawMesh(m_mesh);
 }
@@ -49,7 +50,7 @@ void PlayerController::AddModel(std::string modelPath)
 // Input
 void PlayerController::SetFreezeInput(bool isFrezze)
 {
-
+	m_isFrozen = isFrezze;
 }
 
 void PlayerController::HandleJoystickInput(float deltaSeconds)
@@ -61,13 +62,11 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 	if (!controller.IsConnected())
 		return;
 
-	// Apply turning from left stick IF it is actively being used
 	const AnalogJoystick& leftStick = controller.GetLeftJoystick();
 	float leftStickMagnitude = leftStick.GetMagnitude();
-	if (leftStickMagnitude > 0.f) // This is already deadzone-corrected; so anything non-zero means “significant movement?(outside the inner dead zone)
+	if (leftStickMagnitude > 0.f)
 	{
 		m_forwardAngle = leftStick.GetAngleDegrees();
-		DebuggerPrintf("Forward angle: %f\n", m_forwardAngle);
 
 		Vec2 DeltaPosition;
 		DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_attribe.movingSpeed * leftStickMagnitude);

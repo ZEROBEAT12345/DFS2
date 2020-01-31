@@ -28,7 +28,8 @@ public:
 	void HandleKeyPressed(unsigned char KeyCode);
 	void HandleKeyReleased(unsigned char KeyCode);
 
-	// Camera
+	// Setup
+	void LoadResources();
 
 	// Light
 	void AdjustAmbient(float deltaTime);

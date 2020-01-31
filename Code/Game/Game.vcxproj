@@ -220,6 +220,7 @@
     <ClCompile Include="Main_Windows.cpp" />
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="ProjectileDef.cpp" />
     <ClCompile Include="SkillBase.cpp" />
     <ClCompile Include="VoxelMesh.cpp" />
   </ItemGroup>
@@ -230,6 +231,7 @@
     <ClInclude Include="GameCommon.hpp" />
     <ClInclude Include="PlayerController.hpp" />
     <ClInclude Include="Projectile.hpp" />
+    <ClInclude Include="ProjectileDef.hpp" />
     <ClInclude Include="SkillBase.hpp" />
     <ClInclude Include="VoxelMesh.hpp" />
   </ItemGroup>

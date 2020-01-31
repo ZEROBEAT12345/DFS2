@@ -2,26 +2,24 @@
 #include "Engine/Math/Vec3.hpp"
 #include <string>
 
-struct ProjectileInfo
-{
-	float velocity;
-	float existTime;
-	float damageCoef;
-};
+class ProjectileDef;
 
 class Projectile
 {
 public:
-	Projectile();
-	virtual ~Projectile();
+	Projectile(ProjectileDef* def) : m_def(def) {}
+	~Projectile();
 
-	virtual void Update(float deltaSeconds);
-	virtual void Render();
+	void Update(float deltaSeconds);
+	void Render();
 
 	void AddModel(std::string modelPath);
 
 	// Event Functions
 	// TBD
+
+public:
+	ProjectileDef* m_def = nullptr;
 
 private:
 	Vec3 m_pos;

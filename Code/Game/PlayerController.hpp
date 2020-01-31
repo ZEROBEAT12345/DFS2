@@ -27,11 +27,11 @@ public:
 	void AddModel(std::string modelPath);
 
 	// Input
-	bool IsInputFrozen() const { return m_isFrozen; };
+	bool IsInputFrozen() const { return m_isFrozen; }
 	void SetFreezeInput(bool isFreeze);
 	void HandleJoystickInput(float deltaSeconds);
 
-	// Gameplay
+	// Skill
 	void UseSkill(int skillID);
 
 public:
@@ -51,4 +51,6 @@ private:
 	bool m_isFrozen = false;
 	
 	int m_controllerID = -1;
+
+	// Skill
 };
