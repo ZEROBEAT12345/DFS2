@@ -1,5 +1,6 @@
 #pragma once
 
+class Map;
 class ProjectileDef;
 class PlayerController;
 
@@ -9,10 +10,10 @@ public:
 	SkillDefinition(ProjectileDef* def): m_pDef(def){}
 	~SkillDefinition() {}
 
-	void Cast(PlayerController* player);
+	void Cast(PlayerController* player, Map* curMap);
 
 private:
 	ProjectileDef* m_pDef;
-	float cooldown;
-	float damageCoef;
+	float cooldown = 3.f;
+	float damageCoef = 1.f;
 };

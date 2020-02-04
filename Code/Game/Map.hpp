@@ -6,6 +6,7 @@ class GPUMesh;
 
 class Map
 {
+public:
 	Map() {}
 	~Map() {}
 	void Update(float deltaSeconds);

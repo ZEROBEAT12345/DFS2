@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Math/Vec3.hpp"
+#include <map>
 
 struct Camera;
 class Pipeline;
@@ -10,7 +11,11 @@ class Model;
 class SkyBox;
 class Cubemap;
 class VoxelMesh;
+class Map;
 class PlayerController;
+class ProjectileDef;
+class SkillDefinition;
+struct PlayerAttrib;
 
 #define MAX_PLAYER_NUM 2
 
@@ -40,7 +45,12 @@ private:
 	Pipeline* m_shader;
 	Material* m_mat;
 
+	// Gameplay
+	Map* m_curMap;
 	PlayerController* m_players[MAX_PLAYER_NUM];
+	std::map<std::string, PlayerAttrib*> m_playerInfo;
+	std::map<std::string, ProjectileDef*> m_projectileInfo;
+	std::map<std::string, SkillDefinition*> m_skillInfo;
 
 	// Test mesh
 	GPUMesh* m_cube;
@@ -48,7 +58,6 @@ private:
 	GPUMesh* m_quad;
 	VoxelMesh* m_charVoxel[4];
 	VoxelMesh* m_terrainVoxel;
-	GPUMesh* m_vMesh[4];
 	GPUMesh* m_tMesh;
 
 	// camera 

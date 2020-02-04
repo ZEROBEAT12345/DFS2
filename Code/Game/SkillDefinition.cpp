@@ -2,8 +2,11 @@
 #include "Game/ProjectileDef.hpp"
 #include "Game/Projectile.hpp"
 #include "Game/PlayerController.hpp"
+#include "Game/Map.hpp"
 
-void SkillDefinition::Cast(PlayerController* player)
+void SkillDefinition::Cast(PlayerController* player, Map* curMap)
 {
-	
+	Projectile* newP = new Projectile(m_pDef,player->GetPos(), player->GetForwardAngle(), 14.f);
+	newP->Initialize();
+	curMap->AddProjectile(newP);
 }

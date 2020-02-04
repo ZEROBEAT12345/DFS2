@@ -4,11 +4,15 @@
 
 class ProjectileDef;
 class GPUMesh;
+class Map;
 
 class Projectile
 {
+	friend Map;
+
 public:
 	Projectile(ProjectileDef* def, Vec2 startPos = Vec2(0.f, 0.f), float forwardAngle = 0.f, float height = 0.f) :
+		m_def(def),
 		m_pos(startPos),
 		m_forwardAngle(forwardAngle),
 		m_height(height)

@@ -58,6 +58,9 @@
     <ClCompile Include="SkillDefinition.cpp">
       <Filter>Gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="Map.cpp">
+      <Filter>playable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -86,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="SkillDefinition.hpp">
       <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.hpp">
+      <Filter>playable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

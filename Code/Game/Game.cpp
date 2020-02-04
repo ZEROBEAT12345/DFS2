@@ -22,6 +22,10 @@
 #include "GameCommon.hpp"
 #include "Game/VoxelMesh.hpp"
 #include "Game/PlayerController.hpp"
+#include "Game/SkillDefinition.hpp"
+#include "Game/ProjectileDef.hpp"
+#include "Game/Projectile.hpp"
+#include "Game/Map.hpp"
 //#include "Engine/Tools/FBXImporter.hpp"
 #include <vector>
 
@@ -170,29 +174,18 @@ void Game::Startup()
 	g_theEventSystem->SubscribeEventCallbackFunction("TestLog", TestLog);
 
 	// Initialize test scene
-
-	std::string vMeshPath[4] =
-	{
-		"Data/Models/Ply/Newton.ply",
-		"Data/Models/Ply/Newton.ply",
-		"Data/Models/Ply/Newton.ply",
-		"Data/Models/Ply/Newton.ply"
-	};
-
-	for(int i = 0 ; i< 4; i++)
-	{
-		m_charVoxel[i] = new VoxelMesh();
-		m_charVoxel[i]->LoadFromFiles(vMeshPath[i]);
-		m_vMesh[i] = new GPUMesh(g_theRenderer->GetCTX());
-		CPUMesh* vMesh = m_charVoxel[i]->GenerateMesh();
-		m_vMesh[i]->CreateFromCPUMesh(vMesh, VERTEX_TYPE_LIGHT);
-	}
-
 	m_terrainVoxel = new VoxelMesh();
 	m_terrainVoxel->LoadFromFiles("Data/Models/Ply/terrain.ply");
 	m_tMesh = new GPUMesh(g_theRenderer->GetCTX());
 	CPUMesh* tMesh = m_terrainVoxel->GenerateMesh();
 	m_tMesh->CreateFromCPUMesh(tMesh, VERTEX_TYPE_LIGHT);
+
+	VoxelMesh* appleVoxel = new VoxelMesh();
+	appleVoxel->LoadFromFiles("Data/Models/Ply/apple.ply");
+	GPUMesh* aMesh = new GPUMesh(g_theRenderer->GetCTX());
+	CPUMesh* appleMesh = appleVoxel->GenerateMesh();
+	aMesh->CreateFromCPUMesh(appleMesh, VERTEX_TYPE_LIGHT);
+	g_assetLoader->RegisterMesh("Apple", aMesh);
 
 	// Initialize camera config
 	cameraMovingDir = Vec3::ZERO;
@@ -208,12 +201,19 @@ void Game::Startup()
 	// Initialize light config
 	g_theRenderer->SetAmbientLight(1.0);
 
+	LoadResources();
+
+	// Initialize Map
+	m_curMap = new Map();
+	m_curMap->SetTerrain(m_tMesh);
+
 	// Initialize Player
 	for(int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
-		m_players[i] = new PlayerController(i);
+		m_players[i] = new PlayerController(i, m_curMap);
 		m_players[i]->Initialize();
 		m_players[i]->AddModel("Data/Models/Ply/Newton.ply");
+		m_players[i]->AddSkill(m_skillInfo["Newton_0"], SKILL_NORMAL_ATTACK);
 	}
 }
 
@@ -225,11 +225,8 @@ void Game::Shutdown()
 		m_players[i] = nullptr;
 	}
 
-	for (int i = 0; i < 4; i++)
-	{
-		delete m_vMesh[i];
-		m_vMesh[i] = nullptr;
-	}
+	delete m_curMap;
+	m_curMap = nullptr;
 
 	delete m_tMesh;
 	m_tMesh = nullptr;
@@ -282,6 +279,9 @@ void Game::Update(float deltaSeconds)
 	xzAngle += deltaSeconds * 30.f;
 	g_theRenderer->SetDirLightDir(Vec3(CosDegrees(xzAngle), -1.f, SinDegrees(xzAngle)));
 
+	// Gameplay Update
+	m_curMap->Update(deltaSeconds);
+
 	for (int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
 		m_players[i]->Update(deltaSeconds);
@@ -298,19 +298,7 @@ void Game::Render()
 	g_theRenderer->ClearDepthStencilTargetOnCamera(m_camera);
 	g_theRenderer->BindMaterial(m_mat);
 
-	Matrix44 vmat[4];
-	for (int i = 0; i < 4; i++)
-	{
-		vmat[i].SetTranslation(Vec3(-24.f + 12.f * i, 0.f, 12.f));
-		//vmat[i].MakeRotationForEulerXZY(Vec3(0.f, 0.f, 0.f), Vec3(-24.f + 12.f * i, 0.f, 12.f));
-		g_theRenderer->BindModelMatrix(vmat[i]);
-		g_theRenderer->DrawMesh(m_vMesh[i]);
-	}
-
-	Matrix44 terrainModelMat = Matrix44::identity;
-	terrainModelMat.SetTranslation(Vec3(0.f, -3.f, 12.f));
-	g_theRenderer->BindModelMatrix(terrainModelMat);
-	g_theRenderer->DrawMesh(m_tMesh);
+	m_curMap->Render();
 
 	for (int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
@@ -324,7 +312,7 @@ void Game::Render()
 
 void Game::DeleteGarbageEntities()
 {
-	
+	m_curMap->DeleteGarbageEntities();
 }
 
 void Game::HandleKeyPressed(unsigned char KeyCode)
@@ -415,11 +403,16 @@ void Game::HandleKeyReleased(unsigned char KeyCode)
 void Game::LoadResources()
 {
 	// Load Projectile Definition
+	ProjectileDef* apple = new ProjectileDef();
+	m_projectileInfo["Apple"] = apple;
 
 	// Load Skill Definition
+	SkillDefinition* appleAttack = new SkillDefinition(apple);
+	m_skillInfo["Newton_0"] = appleAttack;
 
 	// Load Player Attrib
-
+	// TBDs
+	
 }
 
 void Game::AdjustAmbient(float deltaTime)

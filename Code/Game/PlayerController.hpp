@@ -3,6 +3,7 @@
 
 class VoxelMesh;
 class GPUMesh;
+class Map;
 class SkillDefinition;
 
 enum SkillID
@@ -21,7 +22,7 @@ struct PlayerAttrib
 	int attack;
 	int armor;
 	int colliderSize;
-	int SkillID_1;
+	std::string SkillID_1;
 	int SkillID_2;
 	int SkillID_3;
 	int SkillID_4;
@@ -32,7 +33,7 @@ class PlayerController
 	friend SkillDefinition;
 
 public:
-	PlayerController(int controllerID) : m_controllerID(controllerID) {}
+	PlayerController(int controllerID, Map* map) : m_controllerID(controllerID), m_curMap(map) {}
 	~PlayerController();
 
 	void BeginFrame();
@@ -41,7 +42,7 @@ public:
 
 	void Initialize();
 	void AddModel(std::string modelPath);
-	void AddSkill(SkillDefinition* skill, int skillID);
+	void AddSkill(SkillDefinition* skill, int skillID) { m_skills[skillID] = skill; }
 
 	// Input
 	bool IsInputFrozen() const { return m_isFrozen; }
@@ -50,6 +51,9 @@ public:
 
 	// Skill
 	void UseSkill(int skillID);
+
+	Vec2 GetPos() const { return m_pos; }
+	float GetForwardAngle() const { return m_forwardAngle; }
 
 public:
 	// Attribute
@@ -68,6 +72,7 @@ private:
 	bool m_isFrozen = false;
 	
 	int m_controllerID = -1;
+	Map* m_curMap = nullptr;
 
 	// Skill
 	SkillDefinition* m_skills[SKILL_NUM];

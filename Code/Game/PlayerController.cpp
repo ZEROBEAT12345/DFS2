@@ -3,8 +3,10 @@
 #include "Engine/Render/ImmediateRenderer.hpp"
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
-#include "PlayerController.hpp"
+#include "Game/PlayerController.hpp"
 #include "Game/VoxelMesh.hpp"
+#include "Game/SkillDefinition.hpp"
+#include "Game/Map.hpp"
 
 extern ImmediateRenderer* g_theRenderer;
 extern InputSystem* g_theInputSystem;
@@ -61,6 +63,7 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 	if (!controller.IsConnected())
 		return;
 
+	// Handle movement
 	const AnalogJoystick& leftStick = controller.GetLeftJoystick();
 	float leftStickMagnitude = leftStick.GetMagnitude();
 	if (leftStickMagnitude > 0.f)
@@ -72,10 +75,17 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 
 		m_pos += DeltaPosition;
 	}
+
+	// Handle Skill
+	KeyButtonState Xstate = controller.GetButtonState(XBOX_BUTTON_ID_X);
+	if(Xstate.WasJustPressed())
+	{
+		UseSkill(SKILL_NORMAL_ATTACK);
+	}
 }
 
 // Gameplay
 void PlayerController::UseSkill(int skillID)
 {
-
+	m_skills[skillID]->Cast(this, m_curMap); 
 }
