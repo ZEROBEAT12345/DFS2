@@ -49,13 +49,13 @@
     <ClCompile Include="PlayerController.cpp">
       <Filter>playable</Filter>
     </ClCompile>
-    <ClCompile Include="SkillBase.cpp">
-      <Filter>Gameplay</Filter>
-    </ClCompile>
     <ClCompile Include="Projectile.cpp">
       <Filter>Gameplay</Filter>
     </ClCompile>
     <ClCompile Include="ProjectileDef.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="SkillDefinition.cpp">
       <Filter>Gameplay</Filter>
     </ClCompile>
   </ItemGroup>
@@ -78,13 +78,13 @@
     <ClInclude Include="PlayerController.hpp">
       <Filter>playable</Filter>
     </ClInclude>
-    <ClInclude Include="SkillBase.hpp">
-      <Filter>Gameplay</Filter>
-    </ClInclude>
     <ClInclude Include="Projectile.hpp">
       <Filter>Gameplay</Filter>
     </ClInclude>
     <ClInclude Include="ProjectileDef.hpp">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillDefinition.hpp">
       <Filter>Gameplay</Filter>
     </ClInclude>
   </ItemGroup>

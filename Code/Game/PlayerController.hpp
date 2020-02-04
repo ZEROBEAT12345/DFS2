@@ -3,6 +3,16 @@
 
 class VoxelMesh;
 class GPUMesh;
+class SkillDefinition;
+
+enum SkillID
+{
+	SKILL_NORMAL_ATTACK,
+	SKILL_1,
+	SKILL_2,
+	SKILL_ULTIMATE,
+	SKILL_NUM
+};
 
 struct PlayerAttrib
 {
@@ -11,10 +21,16 @@ struct PlayerAttrib
 	int attack;
 	int armor;
 	int colliderSize;
+	int SkillID_1;
+	int SkillID_2;
+	int SkillID_3;
+	int SkillID_4;
 }; 
 
 class PlayerController
 {
+	friend SkillDefinition;
+
 public:
 	PlayerController(int controllerID) : m_controllerID(controllerID) {}
 	~PlayerController();
@@ -25,6 +41,7 @@ public:
 
 	void Initialize();
 	void AddModel(std::string modelPath);
+	void AddSkill(SkillDefinition* skill, int skillID);
 
 	// Input
 	bool IsInputFrozen() const { return m_isFrozen; }
@@ -53,4 +70,5 @@ private:
 	int m_controllerID = -1;
 
 	// Skill
+	SkillDefinition* m_skills[SKILL_NUM];
 };

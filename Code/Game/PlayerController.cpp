@@ -29,7 +29,6 @@ void PlayerController::Render()
 {
 	Matrix44 curMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
 	curMat.SetTranslation(Vec3(m_pos.x, 5.f, m_pos.y));
-	//curMat.SetTranslation(Vec3(m_pos.x, 5.f, 10.f));
 	g_theRenderer->BindModelMatrix(curMat);
 	g_theRenderer->DrawMesh(m_mesh);
 }

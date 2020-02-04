@@ -412,6 +412,16 @@ void Game::HandleKeyReleased(unsigned char KeyCode)
 	}
 }
 
+void Game::LoadResources()
+{
+	// Load Projectile Definition
+
+	// Load Skill Definition
+
+	// Load Player Attrib
+
+}
+
 void Game::AdjustAmbient(float deltaTime)
 {
 	ambientLightVolume += deltaTime * ambientChangeAmount;
