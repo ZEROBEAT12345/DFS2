@@ -210,20 +210,17 @@ void Game::Startup()
 	// Initialize Player
 	for(int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
-		m_players[i] = new PlayerController(i, m_curMap);
-		m_players[i]->Initialize();
-		m_players[i]->AddModel("Data/Models/Ply/Newton.ply");
-		m_players[i]->AddSkill(m_skillInfo["Newton_0"], SKILL_NORMAL_ATTACK);
+		PlayerController* newPlayer;
+		newPlayer = new PlayerController(i, m_curMap);
+		newPlayer->Initialize();
+		newPlayer->AddModel("Data/Models/Ply/Newton.ply");
+		newPlayer->AddSkill(m_skillInfo["Newton_0"], SKILL_NORMAL_ATTACK);
+		m_curMap->SetPlayer(i, newPlayer);
 	}
 }
 
 void Game::Shutdown()
 {
-	for (int i = 0; i < MAX_PLAYER_NUM; i++)
-	{
-		delete m_players[i];
-		m_players[i] = nullptr;
-	}
 
 	delete m_curMap;
 	m_curMap = nullptr;
@@ -281,11 +278,6 @@ void Game::Update(float deltaSeconds)
 
 	// Gameplay Update
 	m_curMap->Update(deltaSeconds);
-
-	for (int i = 0; i < MAX_PLAYER_NUM; i++)
-	{
-		m_players[i]->Update(deltaSeconds);
-	}
 }
 
 void Game::Render()
@@ -299,11 +291,6 @@ void Game::Render()
 	g_theRenderer->BindMaterial(m_mat);
 
 	m_curMap->Render();
-
-	for (int i = 0; i < MAX_PLAYER_NUM; i++)
-	{
-		m_players[i]->Render();
-	}
 
 	g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("white"), g_assetLoader->CreateOrGetSampler("linear"));
 

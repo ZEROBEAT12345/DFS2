@@ -21,7 +21,7 @@ struct PlayerAttrib
 	float movingSpeed = 10.f;
 	int attack;
 	int armor;
-	int colliderSize;
+	int colliderSize = 10.f;
 	std::string SkillID_1;
 	int SkillID_2;
 	int SkillID_3;
@@ -41,6 +41,7 @@ public:
 	void Render();
 
 	void Initialize();
+	void Die();
 	void AddModel(std::string modelPath);
 	void AddSkill(SkillDefinition* skill, int skillID) { m_skills[skillID] = skill; }
 
@@ -52,8 +53,14 @@ public:
 	// Skill
 	void UseSkill(int skillID);
 
+	// Mutators
+	void GetDamage(int damage);
+
+	// Accessors
 	Vec2 GetPos() const { return m_pos; }
 	float GetForwardAngle() const { return m_forwardAngle; }
+	int GetPlayerID() { return m_controllerID; }
+	bool IsDead() const { return m_isDead; }
 
 public:
 	// Attribute
@@ -67,13 +74,13 @@ private:
 
 	VoxelMesh* m_voxel = nullptr;
 	GPUMesh* m_mesh = nullptr;
-
-	int m_curHealth = 0;
-	bool m_isFrozen = false;
 	
 	int m_controllerID = -1;
 	Map* m_curMap = nullptr;
 
-	// Skill
+	// Gameplay
+	int m_curHealth = 100;
+	bool m_isDead = false;
+	bool m_isFrozen = false;
 	SkillDefinition* m_skills[SKILL_NUM];
 };

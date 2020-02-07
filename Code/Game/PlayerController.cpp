@@ -77,6 +77,8 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 	}
 
 	// Handle Skill
+	float rTrigger = controller.GetRightTrigger();
+
 	KeyButtonState Xstate = controller.GetButtonState(XBOX_BUTTON_ID_X);
 	if(Xstate.WasJustPressed())
 	{
@@ -88,4 +90,22 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 void PlayerController::UseSkill(int skillID)
 {
 	m_skills[skillID]->Cast(this, m_curMap); 
+}
+
+void PlayerController::GetDamage(int damage)
+{
+	m_curHealth -= damage;
+	
+	if(m_curHealth <= 0)
+	{
+		m_curHealth = 0;
+		Die();
+	}
+
+	
+}
+
+void PlayerController::Die()
+{
+	m_isDead = true;
 }

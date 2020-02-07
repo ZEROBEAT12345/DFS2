@@ -47,7 +47,6 @@ private:
 
 	// Gameplay
 	Map* m_curMap;
-	PlayerController* m_players[MAX_PLAYER_NUM];
 	std::map<std::string, PlayerAttrib*> m_playerInfo;
 	std::map<std::string, ProjectileDef*> m_projectileInfo;
 	std::map<std::string, SkillDefinition*> m_skillInfo;

@@ -28,6 +28,11 @@ public:
 	// Event Functions
 	// TBD
 
+	// Accessors
+	Vec2 GetPos() const { return m_pos; }
+	float GetForwardAngle() const { return m_forwardAngle; }
+	int GetPlayerID() const { return m_playerID; }
+
 public:
 	ProjectileDef* m_def = nullptr;
 
@@ -37,5 +42,6 @@ private:
 	float m_forwardAngle = 0.f;
 	float m_height = 0.f;
 	float m_lifespan = 0.f;
+	int m_playerID = 0;
 	GPUMesh* m_mesh;
 };
