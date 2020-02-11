@@ -5,6 +5,8 @@ class VoxelMesh;
 class GPUMesh;
 class Map;
 class SkillDefinition;
+class VoxelAnimator;
+class VoxelAnimDef;
 
 enum SkillID
 {
@@ -42,7 +44,7 @@ public:
 
 	void Initialize();
 	void Die();
-	void AddModel(std::string modelPath);
+	void AddModel(std::string bodyModel, std::string handModel);
 	void AddSkill(SkillDefinition* skill, int skillID) { m_skills[skillID] = skill; }
 
 	// Input
@@ -72,11 +74,16 @@ private:
 	float m_forwardAngle = 0.f;
 	float m_height = 0.f;
 
-	VoxelMesh* m_voxel = nullptr;
-	GPUMesh* m_mesh = nullptr;
+	VoxelMesh* m_bodyVoxel = nullptr;
+	VoxelMesh* m_handVoxel = nullptr;
+	GPUMesh* m_body = nullptr;
+	GPUMesh* m_hand = nullptr;
 	
 	int m_controllerID = -1;
 	Map* m_curMap = nullptr;
+
+	VoxelAnimator* m_animator = nullptr;
+	VoxelAnimDef* m_damagedAnim = nullptr;
 
 	// Gameplay
 	int m_curHealth = 100;

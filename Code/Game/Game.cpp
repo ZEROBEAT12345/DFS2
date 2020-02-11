@@ -213,7 +213,7 @@ void Game::Startup()
 		PlayerController* newPlayer;
 		newPlayer = new PlayerController(i, m_curMap);
 		newPlayer->Initialize();
-		newPlayer->AddModel("Data/Models/Ply/Newton.ply");
+		newPlayer->AddModel("Data/Models/Ply/Newton.ply", "Data/Models/Ply/hand_Test.ply");
 		newPlayer->AddSkill(m_skillInfo["Newton_0"], SKILL_NORMAL_ATTACK);
 		m_curMap->SetPlayer(i, newPlayer);
 	}
@@ -248,7 +248,7 @@ void Game::Update(float deltaSeconds)
 	if (cameraMoveRight)
 		cameraMovingDir += Vec3(1.f, 0.f, 0.f);
 
-	Matrix44 cameraRotateMat = Matrix44::MakeRotationForEulerXZY(Vec3(cameraXangle, cameraYangle, 0.f), Vec3::ZERO);
+	Matrix44 cameraRotateMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), Vec3::ZERO);
 	Vec3 cameraLocalTrans = cameraMovingDir * cameraMovingSpeed * deltaSeconds;
 	Vec4 cameraWorldTrans = cameraRotateMat * Vec4(cameraLocalTrans.x, cameraLocalTrans.y, cameraLocalTrans.z, 0.f);
 	m_cameraPos += Vec3(cameraWorldTrans.x, cameraWorldTrans.y, cameraWorldTrans.z);
@@ -260,7 +260,7 @@ void Game::Update(float deltaSeconds)
 	cameraXangle += Xangle;
 	cameraYangle += Yangle;
 
-	Matrix44 cameraMat = Matrix44::MakeRotationForEulerXZY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
+	Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
 	m_camera->SetModelMatrix(cameraMat);
 	
 	// Update light configs
@@ -290,9 +290,12 @@ void Game::Render()
 	g_theRenderer->ClearDepthStencilTargetOnCamera(m_camera);
 	g_theRenderer->BindMaterial(m_mat);
 
+	// Render map
 	m_curMap->Render();
 
 	g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("white"), g_assetLoader->CreateOrGetSampler("linear"));
+
+	// Render HUD
 
 	DebugRenderScreen();
 }

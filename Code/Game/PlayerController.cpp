@@ -13,8 +13,8 @@ extern InputSystem* g_theInputSystem;
 
 PlayerController::~PlayerController()
 {
-	delete m_mesh;
-	delete m_voxel;
+	delete m_body;
+	delete m_bodyVoxel;
 }
 
 void PlayerController::BeginFrame()
@@ -31,21 +31,38 @@ void PlayerController::Render()
 {
 	Matrix44 curMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
 	curMat.SetTranslation(Vec3(m_pos.x, 5.f, m_pos.y));
+
 	g_theRenderer->BindModelMatrix(curMat);
-	g_theRenderer->DrawMesh(m_mesh);
+	g_theRenderer->DrawMesh(m_body);
+
+	Matrix44 leftHandTranslate = Matrix44::MakeTranslation3D(Vec3(3.f, 8.f, 5.f));
+	Matrix44 rightHandTranslate = Matrix44::MakeTranslation3D(Vec3(3.f, 8.f, -5.f));
+
+	g_theRenderer->BindModelMatrix(curMat * leftHandTranslate);
+	g_theRenderer->DrawMesh(m_hand);
+
+	g_theRenderer->BindModelMatrix(curMat * rightHandTranslate);
+	g_theRenderer->DrawMesh(m_hand);
 }
 
 void PlayerController::Initialize()
 {
-	m_voxel = new VoxelMesh();
-	m_mesh = new GPUMesh(g_theRenderer->GetCTX());
+	m_bodyVoxel = new VoxelMesh();
+	m_body = new GPUMesh(g_theRenderer->GetCTX());
+
+	m_handVoxel = new VoxelMesh();
+	m_hand = new GPUMesh(g_theRenderer->GetCTX());
 }
 
-void PlayerController::AddModel(std::string modelPath)
+void PlayerController::AddModel(std::string bodyModel, std::string handModel)
 {
-	m_voxel->LoadFromFiles(modelPath);
-	CPUMesh* modelMesh = m_voxel->GenerateMesh();
-	m_mesh->CreateFromCPUMesh(modelMesh, VERTEX_TYPE_LIGHT);
+	m_bodyVoxel->LoadFromFiles(bodyModel);
+	CPUMesh* modelMesh = m_bodyVoxel->GenerateMesh();
+	m_body->CreateFromCPUMesh(modelMesh, VERTEX_TYPE_LIGHT);
+
+	m_handVoxel->LoadFromFiles(handModel);
+	CPUMesh* handMesh = m_handVoxel->GenerateMesh();
+	m_hand->CreateFromCPUMesh(handMesh, VERTEX_TYPE_LIGHT);
 }
 
 // Input
@@ -101,8 +118,6 @@ void PlayerController::GetDamage(int damage)
 		m_curHealth = 0;
 		Die();
 	}
-
-	
 }
 
 void PlayerController::Die()

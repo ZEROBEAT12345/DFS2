@@ -23,11 +23,11 @@
     <Filter Include="Render">
       <UniqueIdentifier>{337d1d19-f49b-49d3-9922-67ff6a5e0186}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Data\Tables">
-      <UniqueIdentifier>{88c4bd84-a38d-4c68-af3d-e57a23ccafa9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Gameplay">
       <UniqueIdentifier>{89c4bf73-b0a8-41a2-8050-d3db5f5c4e1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Gameplay">
+      <UniqueIdentifier>{88c4bd84-a38d-4c68-af3d-e57a23ccafa9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +61,12 @@
     <ClCompile Include="Map.cpp">
       <Filter>playable</Filter>
     </ClCompile>
+    <ClCompile Include="VoxelAnimDef.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelAnimator.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -92,6 +98,12 @@
     </ClInclude>
     <ClInclude Include="Map.hpp">
       <Filter>playable</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelAnimDef.hpp">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelAnimator.hpp">
+      <Filter>Gameplay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

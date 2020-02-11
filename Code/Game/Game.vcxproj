@@ -223,6 +223,8 @@
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="ProjectileDef.cpp" />
     <ClCompile Include="SkillDefinition.cpp" />
+    <ClCompile Include="VoxelAnimator.cpp" />
+    <ClCompile Include="VoxelAnimDef.cpp" />
     <ClCompile Include="VoxelMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -235,6 +237,8 @@
     <ClInclude Include="Projectile.hpp" />
     <ClInclude Include="ProjectileDef.hpp" />
     <ClInclude Include="SkillDefinition.hpp" />
+    <ClInclude Include="VoxelAnimator.hpp" />
+    <ClInclude Include="VoxelAnimDef.hpp" />
     <ClInclude Include="VoxelMesh.hpp" />
   </ItemGroup>
   <ItemGroup>
