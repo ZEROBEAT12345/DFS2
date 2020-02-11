@@ -9,30 +9,25 @@ void VoxelAnimator::Update(float deltaSeconds)
 	m_curTimeCount += deltaSeconds;
 	float animTime = m_curAnim->GetAnimTime();
 
-	switch (m_playbackMode)
+	if(m_curTimeCount > animTime)
 	{
-	case PLAYBACK_ONCE:
-		m_isPlay = false;
-		m_curTimeCount = 0.f;
-		break;
-	case PLAYBACK_LOOP:
-		while (m_curTimeCount > animTime)
+		switch (m_playbackMode)
 		{
-			m_curTimeCount -= animTime;
-		}
-		break;
-	case PLAYBACK_PINGPONG:
-		// TBD;
-		break;
-	default:
-		break;
-	}
-
-	if(m_playbackMode == PLAYBACK_LOOP)
-	{
-		while (m_curTimeCount > animTime)
-		{
-			m_curTimeCount -= animTime;
+		case PLAYBACK_ONCE:
+			m_isPlay = false;
+			m_curTimeCount = 0.f;
+			break;
+		case PLAYBACK_LOOP:
+			while (m_curTimeCount > animTime)
+			{
+				m_curTimeCount -= animTime;
+			}
+			break;
+		case PLAYBACK_PINGPONG:
+			// TBD;
+			break;
+		default:
+			break;
 		}
 	}
 }

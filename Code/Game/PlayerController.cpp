@@ -7,6 +7,8 @@
 #include "Game/VoxelMesh.hpp"
 #include "Game/SkillDefinition.hpp"
 #include "Game/Map.hpp"
+#include "Game/VoxelAnimator.hpp"
+#include "Game/VoxelAnimDef.hpp"
 
 extern ImmediateRenderer* g_theRenderer;
 extern InputSystem* g_theInputSystem;
@@ -25,12 +27,22 @@ void PlayerController::BeginFrame()
 void PlayerController::Update(float deltaSeconds)
 {
 	HandleJoystickInput(deltaSeconds);
+	m_animator->Update(deltaSeconds);
 }
 
 void PlayerController::Render()
 {
 	Matrix44 curMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
 	curMat.SetTranslation(Vec3(m_pos.x, 5.f, m_pos.y));
+
+	if (m_animator->IsPlaying())
+	{
+		VoxelAnimFrame curFrame = m_animator->GetCurAnimFrame();
+
+		Matrix44 animMat = Matrix44::MakeRotationForEulerYZX(curFrame.rotation, curFrame.pos);
+
+		curMat = curMat * animMat;
+	}
 
 	g_theRenderer->BindModelMatrix(curMat);
 	g_theRenderer->DrawMesh(m_body);
@@ -52,6 +64,8 @@ void PlayerController::Initialize()
 
 	m_handVoxel = new VoxelMesh();
 	m_hand = new GPUMesh(g_theRenderer->GetCTX());
+
+	m_animator = new VoxelAnimator();
 }
 
 void PlayerController::AddModel(std::string bodyModel, std::string handModel)
@@ -112,6 +126,7 @@ void PlayerController::UseSkill(int skillID)
 void PlayerController::GetDamage(int damage)
 {
 	m_curHealth -= damage;
+	m_animator->PlayAnimation(m_damagedAnim);
 	
 	if(m_curHealth <= 0)
 	{

@@ -46,6 +46,7 @@ public:
 	void Die();
 	void AddModel(std::string bodyModel, std::string handModel);
 	void AddSkill(SkillDefinition* skill, int skillID) { m_skills[skillID] = skill; }
+	void AddDamagedAnim(VoxelAnimDef* anim) { m_damagedAnim = anim; };
 
 	// Input
 	bool IsInputFrozen() const { return m_isFrozen; }

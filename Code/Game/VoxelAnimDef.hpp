@@ -16,6 +16,8 @@ class VoxelAnimDef
 {
 public:
 	const VoxelAnimFrame& GetFrameOnTime(float time);
+	void AddFrame(VoxelAnimFrame frame) { m_frames.push_back(frame); }
+	void SetAnimTime(float time) { m_animTime = time; }
 	float GetAnimTime() const { return m_animTime; }
 
 private:

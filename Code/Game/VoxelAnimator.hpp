@@ -12,6 +12,7 @@ enum eVoxelAnimPlayBackType
 
 class VoxelAnimator
 {
+public:
 	VoxelAnimator() {}
 	~VoxelAnimator() {}
 

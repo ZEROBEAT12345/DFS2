@@ -16,6 +16,7 @@ class PlayerController;
 class ProjectileDef;
 class SkillDefinition;
 struct PlayerAttrib;
+class VoxelAnimDef;
 
 #define MAX_PLAYER_NUM 2
 
@@ -50,6 +51,7 @@ private:
 	std::map<std::string, PlayerAttrib*> m_playerInfo;
 	std::map<std::string, ProjectileDef*> m_projectileInfo;
 	std::map<std::string, SkillDefinition*> m_skillInfo;
+	std::map<std::string, VoxelAnimDef*> m_animInfo;
 
 	// Test mesh
 	GPUMesh* m_cube;

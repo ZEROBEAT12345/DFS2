@@ -7,6 +7,7 @@
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/Debug/MemoryTrack.hpp"
 #include "Engine/Core/Debug/Log.hpp"
+#include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Math/Algorithms/RandomNumberGenerator.hpp"
 #include "Engine/Math/Algorithms/MathUtils.hpp"
@@ -26,6 +27,8 @@
 #include "Game/ProjectileDef.hpp"
 #include "Game/Projectile.hpp"
 #include "Game/Map.hpp"
+#include "Game/VoxelAnimDef.hpp"
+#include "Game/VoxelAnimator.hpp"
 //#include "Engine/Tools/FBXImporter.hpp"
 #include <vector>
 
@@ -215,6 +218,7 @@ void Game::Startup()
 		newPlayer->Initialize();
 		newPlayer->AddModel("Data/Models/Ply/Newton.ply", "Data/Models/Ply/hand_Test.ply");
 		newPlayer->AddSkill(m_skillInfo["Newton_0"], SKILL_NORMAL_ATTACK);
+		newPlayer->AddDamagedAnim(m_animInfo["test"]);
 		m_curMap->SetPlayer(i, newPlayer);
 	}
 }
@@ -402,7 +406,43 @@ void Game::LoadResources()
 
 	// Load Player Attrib
 	// TBDs
+
+	// Load voxel animation definition
+	VoxelAnimDef* newAnim = new VoxelAnimDef();
+
+	tinyxml2::XMLDocument animDefXML;
+	animDefXML.LoadFile("Data/Animations/Voxel/_Template.anim");
+	XmlElement* animRoot = animDefXML.RootElement();
+
+	std::string animId = ParseXmlAttribute(*animRoot, "id", "");
+	int frameNum = ParseXmlAttribute(*animRoot, "frameNum", 2);
+	//	easing = "null" TBD
+	float animTime = ParseXmlAttribute(*animRoot, "animTime", 3.f);
+
+	newAnim->SetAnimTime(animTime);
+
+	XmlElement* frameDef = animRoot->FirstChildElement();
+
+	for(int i = 0; i < frameNum; i++)
+	{
+		float ratio = ParseXmlAttribute(*frameDef, "time", 1.0f);
+		Vec3 pos = ParseXmlAttribute(*frameDef, "pos", Vec3(0.f,0.f,0.f));
+		float scale = ParseXmlAttribute(*frameDef, "scale", 1.0f);
+		Vec3 rotation = ParseXmlAttribute(*frameDef, "rotation", Vec3(0.f,0.f,0.f));
+		Rgba tint = ParseXmlAttribute(*frameDef, "tint", Rgba::WHITE);
+
+		VoxelAnimFrame newframe;
+		newframe.frameRatio = ratio;
+		newframe.pos = pos;
+		newframe.rotation = rotation;
+		newframe.scale = scale;
+		newframe.tint = tint;
+
+		newAnim->AddFrame(newframe);
+		frameDef = frameDef->NextSiblingElement();
+	}
 	
+	m_animInfo[animId] = newAnim;
 }
 
 void Game::AdjustAmbient(float deltaTime)
