@@ -2,7 +2,7 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Math/Algorithms/MathUtils.hpp"
 
-const VoxelAnimFrame& VoxelAnimDef::GetFrameOnTime(float time)
+VoxelAnimFrame VoxelAnimDef::GetFrameOnTime(float time)
 {
 	// Doing lerping function here
 	if(time < 0.f || time > m_animTime)
@@ -52,6 +52,7 @@ const VoxelAnimFrame& VoxelAnimDef::GetFrameOnTime(float time)
 	VoxelAnimFrame curFrame = m_frames[startIdx];
 	VoxelAnimFrame nextFrame = m_frames[endIdx];
 	float lerpRatio = (ratio - curTime) / (nextTime - curTime);
+	
 	newFrame.frameRatio = ratio;
 	newFrame.pos.x = Interpolation(curFrame.pos.x, nextFrame.pos.x, lerpRatio);
 	newFrame.pos.y = Interpolation(curFrame.pos.y, nextFrame.pos.y, lerpRatio);
@@ -63,6 +64,6 @@ const VoxelAnimFrame& VoxelAnimDef::GetFrameOnTime(float time)
 	newFrame.tint.r = Interpolation(curFrame.tint.r, nextFrame.tint.r, lerpRatio);
 	newFrame.tint.g = Interpolation(curFrame.tint.g, nextFrame.tint.g, lerpRatio);
 	newFrame.tint.b = Interpolation(curFrame.tint.b, nextFrame.tint.b, lerpRatio);
-
+	DebuggerPrintf("rotation: %f %f %f\n", newFrame.rotation.x, newFrame.rotation.y, newFrame.rotation.z);
 	return newFrame;
 }

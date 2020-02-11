@@ -1,5 +1,6 @@
 #include "Game/VoxelAnimator.hpp"
 #include "Game/VoxelAnimDef.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 
 void VoxelAnimator::Update(float deltaSeconds)
 {
@@ -50,7 +51,11 @@ void VoxelAnimator::StopAnimation() // Pause current anim
 	m_curTimeCount = 0.f;
 }
 
-const VoxelAnimFrame& VoxelAnimator::GetCurAnimFrame()
+VoxelAnimFrame VoxelAnimator::GetCurAnimFrame()
 {
-	return m_curAnim->GetFrameOnTime(m_curTimeCount);
+	VoxelAnimFrame curFrame = m_curAnim->GetFrameOnTime(m_curTimeCount);
+
+	DebuggerPrintf("rotation: %f %f %f\n", curFrame.rotation.x, curFrame.rotation.y, curFrame.rotation.z);
+	//DebuggerPrintf("curTime: %f\n", m_curTimeCount);
+	return curFrame;
 }

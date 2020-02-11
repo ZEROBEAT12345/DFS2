@@ -25,7 +25,7 @@ public:
 	void SetPlayBackType(eVoxelAnimPlayBackType type) { m_playbackMode = type; }
 	
 	bool IsPlaying() const { return m_isPlay; }
-	const VoxelAnimFrame& GetCurAnimFrame();
+	VoxelAnimFrame GetCurAnimFrame();
 
 private:
 	//float m_startTime = 0.f;

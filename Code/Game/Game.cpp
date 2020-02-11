@@ -219,6 +219,7 @@ void Game::Startup()
 		newPlayer->AddModel("Data/Models/Ply/Newton.ply", "Data/Models/Ply/hand_Test.ply");
 		newPlayer->AddSkill(m_skillInfo["Newton_0"], SKILL_NORMAL_ATTACK);
 		newPlayer->AddDamagedAnim(m_animInfo["test"]);
+		newPlayer->AddAttackAnim(m_animInfo["test"]);
 		m_curMap->SetPlayer(i, newPlayer);
 	}
 }

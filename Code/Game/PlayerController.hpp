@@ -47,6 +47,7 @@ public:
 	void AddModel(std::string bodyModel, std::string handModel);
 	void AddSkill(SkillDefinition* skill, int skillID) { m_skills[skillID] = skill; }
 	void AddDamagedAnim(VoxelAnimDef* anim) { m_damagedAnim = anim; };
+	void AddAttackAnim(VoxelAnimDef* anim) { m_attackAnim = anim; };
 
 	// Input
 	bool IsInputFrozen() const { return m_isFrozen; }
@@ -83,8 +84,10 @@ private:
 	int m_controllerID = -1;
 	Map* m_curMap = nullptr;
 
-	VoxelAnimator* m_animator = nullptr;
+	VoxelAnimator* m_bodyAnimator = nullptr;
+	VoxelAnimator* m_handAnimator = nullptr;
 	VoxelAnimDef* m_damagedAnim = nullptr;
+	VoxelAnimDef* m_attackAnim = nullptr;
 
 	// Gameplay
 	int m_curHealth = 100;

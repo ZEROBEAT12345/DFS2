@@ -3,6 +3,7 @@
 #include "Engine/Render/ImmediateRenderer.hpp"
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/DebugRenderSystem.hpp"
 #include "Game/PlayerController.hpp"
 #include "Game/VoxelMesh.hpp"
 #include "Game/SkillDefinition.hpp"
@@ -12,6 +13,7 @@
 
 extern ImmediateRenderer* g_theRenderer;
 extern InputSystem* g_theInputSystem;
+using namespace DebugRender;
 
 PlayerController::~PlayerController()
 {
@@ -27,33 +29,35 @@ void PlayerController::BeginFrame()
 void PlayerController::Update(float deltaSeconds)
 {
 	HandleJoystickInput(deltaSeconds);
-	m_animator->Update(deltaSeconds);
+	m_bodyAnimator->Update(deltaSeconds);
 }
 
 void PlayerController::Render()
 {
-	Matrix44 curMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
-	curMat.SetTranslation(Vec3(m_pos.x, 5.f, m_pos.y));
+	Matrix44 characterMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
+	characterMat.SetTranslation(Vec3(m_pos.x, 0.f, m_pos.y));
 
-	if (m_animator->IsPlaying())
-	{
-		VoxelAnimFrame curFrame = m_animator->GetCurAnimFrame();
-
-		Matrix44 animMat = Matrix44::MakeRotationForEulerYZX(curFrame.rotation, curFrame.pos);
-
-		curMat = curMat * animMat;
-	}
-
-	g_theRenderer->BindModelMatrix(curMat);
+	g_theRenderer->BindModelMatrix(characterMat);
 	g_theRenderer->DrawMesh(m_body);
 
-	Matrix44 leftHandTranslate = Matrix44::MakeTranslation3D(Vec3(3.f, 8.f, 5.f));
-	Matrix44 rightHandTranslate = Matrix44::MakeTranslation3D(Vec3(3.f, 8.f, -5.f));
+	Matrix44 lefHandMat = Matrix44::MakeTranslation3D(Vec3(3.f, 8.f, 5.f));
+	Matrix44 rightHandMat = Matrix44::MakeTranslation3D(Vec3(3.f, 8.f, -5.f));
 
-	g_theRenderer->BindModelMatrix(curMat * leftHandTranslate);
+	if (m_bodyAnimator->IsPlaying())
+	{
+		const VoxelAnimFrame& curFrame = m_bodyAnimator->GetCurAnimFrame();
+		DebugRenderMessage(0.5f, Rgba::CYAN, Rgba::CYAN, "(%f, %f, %f)", curFrame.rotation.x, curFrame.rotation.y, curFrame.rotation.z);
+
+		Matrix44 animMat = Matrix44::MakeRotationForEulerZXY(curFrame.rotation, curFrame.pos);
+
+		lefHandMat = lefHandMat * animMat;
+		rightHandMat = rightHandMat * animMat;
+	}
+
+	g_theRenderer->BindModelMatrix(characterMat * lefHandMat);
 	g_theRenderer->DrawMesh(m_hand);
 
-	g_theRenderer->BindModelMatrix(curMat * rightHandTranslate);
+	g_theRenderer->BindModelMatrix(characterMat * rightHandMat);
 	g_theRenderer->DrawMesh(m_hand);
 }
 
@@ -65,7 +69,7 @@ void PlayerController::Initialize()
 	m_handVoxel = new VoxelMesh();
 	m_hand = new GPUMesh(g_theRenderer->GetCTX());
 
-	m_animator = new VoxelAnimator();
+	m_bodyAnimator = new VoxelAnimator();
 }
 
 void PlayerController::AddModel(std::string bodyModel, std::string handModel)
@@ -121,12 +125,12 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 void PlayerController::UseSkill(int skillID)
 {
 	m_skills[skillID]->Cast(this, m_curMap); 
+	m_bodyAnimator->PlayAnimation(m_attackAnim);
 }
 
 void PlayerController::GetDamage(int damage)
 {
 	m_curHealth -= damage;
-	m_animator->PlayAnimation(m_damagedAnim);
 	
 	if(m_curHealth <= 0)
 	{

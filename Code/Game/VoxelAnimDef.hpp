@@ -5,17 +5,17 @@
 
 struct VoxelAnimFrame
 {
-	float frameRatio;
-	Vec3 pos;
-	float scale;
-	Vec3 rotation;
-	Rgba tint;
+	float frameRatio = 0.f;
+	Vec3 pos = Vec3::ZERO;
+	float scale =  0.f;
+	Vec3 rotation = Vec3::ZERO;
+	Rgba tint = Rgba::WHITE;
 };
 
 class VoxelAnimDef
 {
 public:
-	const VoxelAnimFrame& GetFrameOnTime(float time);
+	VoxelAnimFrame GetFrameOnTime(float time);
 	void AddFrame(VoxelAnimFrame frame) { m_frames.push_back(frame); }
 	void SetAnimTime(float time) { m_animTime = time; }
 	float GetAnimTime() const { return m_animTime; }
