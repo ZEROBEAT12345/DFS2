@@ -1,7 +1,7 @@
 <animations id = "test" 
       frameNum = "4"
       easing = "null"
-      animTime = "3.0">
+      animTime = "1.0">
 
       <!--> ratio, from 0.f ~ 1.f, 0.f means start </!-->
       <frame time = "0.0"

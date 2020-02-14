@@ -177,16 +177,16 @@ void Game::Startup()
 	g_theEventSystem->SubscribeEventCallbackFunction("TestLog", TestLog);
 
 	// Initialize test scene
-	m_terrainVoxel = new VoxelMesh();
-	m_terrainVoxel->LoadFromFiles("Data/Models/Ply/terrain.ply");
-	m_tMesh = new GPUMesh(g_theRenderer->GetCTX());
-	CPUMesh* tMesh = m_terrainVoxel->GenerateMesh();
-	m_tMesh->CreateFromCPUMesh(tMesh, VERTEX_TYPE_LIGHT);
+	VoxelMesh* terrainVoxel = new VoxelMesh();
+	terrainVoxel->LoadFromFiles("Data/Models/Ply/terrain.ply");
+	GPUMesh* terrainMesh = new GPUMesh(g_theRenderer->GetCTX());
+	CPUMesh* tMesh = terrainVoxel->GenerateMesh(2.f);
+	terrainMesh->CreateFromCPUMesh(tMesh, VERTEX_TYPE_LIGHT);
 
 	VoxelMesh* appleVoxel = new VoxelMesh();
 	appleVoxel->LoadFromFiles("Data/Models/Ply/apple.ply");
 	GPUMesh* aMesh = new GPUMesh(g_theRenderer->GetCTX());
-	CPUMesh* appleMesh = appleVoxel->GenerateMesh();
+	CPUMesh* appleMesh = appleVoxel->GenerateMesh(0.5f);
 	aMesh->CreateFromCPUMesh(appleMesh, VERTEX_TYPE_LIGHT);
 	g_assetLoader->RegisterMesh("Apple", aMesh);
 
@@ -196,10 +196,16 @@ void Game::Startup()
 
 	TextureView *rtv = g_theRenderer->GetDefaultRTV();
 	m_camera = new Camera();
-	//m_camera->SetPerspectiveProjection(90.f, g_gameConfigBackround.GetValue("windowAspect", 1.777777f), 0.1f, 1000.f);
 	m_camera->SetPerspectiveProjection(90.f, windowAspect, 0.1f, 1000.f);
 	m_camera->SetColorTargetView(rtv);
-	m_cameraPos = Vec3(0.f, 50.f, -50.f);
+	m_cameraPos = Vec3(0.f, 90.f, -50.f);
+
+	Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
+	m_camera->SetModelMatrix(cameraMat);
+
+	m_HUDCamera = new Camera();
+	m_HUDCamera->SetOrthographicProjection(Vec2::ZERO, Vec2(150.f, 100.f));
+	m_HUDCamera->SetColorTargetView(rtv);
 
 	// Initialize light config
 	g_theRenderer->SetAmbientLight(1.0);
@@ -208,7 +214,7 @@ void Game::Startup()
 
 	// Initialize Map
 	m_curMap = new Map();
-	m_curMap->SetTerrain(m_tMesh);
+	m_curMap->SetTerrain(terrainMesh);
 
 	// Initialize Player
 	for(int i = 0; i < MAX_PLAYER_NUM; i++)
@@ -220,53 +226,111 @@ void Game::Startup()
 		newPlayer->AddSkill(m_skillInfo["Newton_0"], SKILL_NORMAL_ATTACK);
 		newPlayer->AddDamagedAnim(m_animInfo["test"]);
 		newPlayer->AddAttackAnim(m_animInfo["test"]);
+		newPlayer->SetPos(Vec2(64.f, 64.f) * (i * 2 + (-1)));
 		m_curMap->SetPlayer(i, newPlayer);
 	}
+
+	// Initialize HUD
+	CPUMesh healthBarBg = CPUMesh();
+	AABB2 bgBox = AABB2(Vec2(2.f, 93.f), Vec2(44.f, 100.f));
+	CPUMeshAddBox2D(&healthBarBg, bgBox, Rgba::WHITE, Vec2::ZERO, Vec2::ONE);
+	m_healthBarBg = new GPUMesh(g_theRenderer->GetCTX());
+	m_healthBarBg->CreateFromCPUMesh(&healthBarBg, VERTEX_TYPE_LIGHT);
+
+	CPUMesh healthBarBg2 = CPUMesh();
+	AABB2 bgBox2 = AABB2(Vec2(106.f, 93.f), Vec2(148.f, 100.f));
+	CPUMeshAddBox2D(&healthBarBg2, bgBox2, Rgba::WHITE, Vec2::ZERO, Vec2::ONE);
+	m_healthBarBg_2 = new GPUMesh(g_theRenderer->GetCTX());
+	m_healthBarBg_2->CreateFromCPUMesh(&healthBarBg2, VERTEX_TYPE_LIGHT);
+
+	CPUMesh healthBarSlot = CPUMesh();
+	AABB2 slotBox = AABB2(Vec2(3.f, 94.f), Vec2(43.f, 99.f));
+	CPUMeshAddBox2D(&healthBarSlot, slotBox, Rgba::BLUE_KON, Vec2::ZERO, Vec2::ONE);
+	m_healthBarSlot = new GPUMesh(g_theRenderer->GetCTX());
+	m_healthBarSlot->CreateFromCPUMesh(&healthBarSlot, VERTEX_TYPE_LIGHT);
+
+	CPUMesh healthBarSlot_2 = CPUMesh();
+	AABB2 slotBox2 = AABB2(Vec2(107.f, 94.f), Vec2(147.f, 99.f));
+	CPUMeshAddBox2D(&healthBarSlot_2, slotBox2, Rgba::BLUE_KON, Vec2::ZERO, Vec2::ONE);
+	m_healthBarSlot_2 = new GPUMesh(g_theRenderer->GetCTX());
+	m_healthBarSlot_2->CreateFromCPUMesh(&healthBarSlot_2, VERTEX_TYPE_LIGHT);
+
+	CPUMesh healthBar = CPUMesh();
+	AABB2 barBox = AABB2(Vec2(3.f, 94.f), Vec2(43.f, 99.f));
+	CPUMeshAddBox2D(&healthBar, barBox, Rgba::PINK_TAIKOH, Vec2::ZERO, Vec2::ONE);
+	m_healthBar = new GPUMesh(g_theRenderer->GetCTX());
+	m_healthBar->CreateFromCPUMesh(&healthBar, VERTEX_TYPE_LIGHT);
+
+	CPUMesh healthBar2 = CPUMesh();
+	AABB2 barBox2 = AABB2(Vec2(107.f, 94.f), Vec2(147.f, 99.f));
+	CPUMeshAddBox2D(&healthBar2, barBox2, Rgba::PINK_TAIKOH, Vec2::ZERO, Vec2::ONE);
+	m_healthBar_2 = new GPUMesh(g_theRenderer->GetCTX());
+	m_healthBar_2->CreateFromCPUMesh(&healthBar2, VERTEX_TYPE_LIGHT);
 }
 
 void Game::Shutdown()
 {
-
 	delete m_curMap;
 	m_curMap = nullptr;
 
-	delete m_tMesh;
-	m_tMesh = nullptr;
-
 	delete m_camera;
 	m_camera = nullptr;
+
+	delete m_HUDCamera;
+	m_HUDCamera = nullptr;
+
+	delete m_healthBarBg;
+	m_healthBarBg = nullptr;
+
+	delete m_healthBarBg_2;
+	m_healthBarBg_2 = nullptr;
+
+	delete m_healthBarSlot;
+	m_healthBarSlot = nullptr;
+
+	delete m_healthBarSlot_2;
+	m_healthBarSlot_2 = nullptr;
+
+	delete m_healthBar;
+	m_healthBar = nullptr;
+
+	delete m_healthBar_2;
+	m_healthBar_2 = nullptr;
 }
 
 void Game::Update(float deltaSeconds)
 {
 	// Update camera config
-	cameraMovingDir = Vec3::ZERO;
-	if (cameraMoveFront)
-		cameraMovingDir += Vec3(0.f, 0.f, 1.f);
+	if(!m_lockCamera)
+	{
+		cameraMovingDir = Vec3::ZERO;
+		if (cameraMoveFront)
+			cameraMovingDir += Vec3(0.f, 0.f, 1.f);
 
-	if (cameraMoveBack)
-		cameraMovingDir += Vec3(0.f, 0.f, -1.f);
+		if (cameraMoveBack)
+			cameraMovingDir += Vec3(0.f, 0.f, -1.f);
 
-	if (cameraMoveLeft)
-		cameraMovingDir += Vec3(-1.f, 0.f, 0.f);
+		if (cameraMoveLeft)
+			cameraMovingDir += Vec3(-1.f, 0.f, 0.f);
 
-	if (cameraMoveRight)
-		cameraMovingDir += Vec3(1.f, 0.f, 0.f);
+		if (cameraMoveRight)
+			cameraMovingDir += Vec3(1.f, 0.f, 0.f);
 
-	Matrix44 cameraRotateMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), Vec3::ZERO);
-	Vec3 cameraLocalTrans = cameraMovingDir * cameraMovingSpeed * deltaSeconds;
-	Vec4 cameraWorldTrans = cameraRotateMat * Vec4(cameraLocalTrans.x, cameraLocalTrans.y, cameraLocalTrans.z, 0.f);
-	m_cameraPos += Vec3(cameraWorldTrans.x, cameraWorldTrans.y, cameraWorldTrans.z);
+		Matrix44 cameraRotateMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), Vec3::ZERO);
+		Vec3 cameraLocalTrans = cameraMovingDir * cameraMovingSpeed * deltaSeconds;
+		Vec4 cameraWorldTrans = cameraRotateMat * Vec4(cameraLocalTrans.x, cameraLocalTrans.y, cameraLocalTrans.z, 0.f);
+		m_cameraPos += Vec3(cameraWorldTrans.x, cameraWorldTrans.y, cameraWorldTrans.z);
 
 
-	IntVec2 mouseTrans = g_theWindow->GetClientMouseRelativePositon();
-	float Yangle = mouseTrans.x / 10.f;
-	float Xangle = mouseTrans.y / 10.f;
-	cameraXangle += Xangle;
-	cameraYangle += Yangle;
+		IntVec2 mouseTrans = g_theWindow->GetClientMouseRelativePositon();
+		float Yangle = mouseTrans.x / 10.f;
+		float Xangle = mouseTrans.y / 10.f;
+		cameraXangle += Xangle;
+		cameraYangle += Yangle;
 
-	Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
-	m_camera->SetModelMatrix(cameraMat);
+		Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
+		m_camera->SetModelMatrix(cameraMat);
+	}
 	
 	// Update light configs
 	AdjustAmbient(deltaSeconds);
@@ -274,8 +338,7 @@ void Game::Update(float deltaSeconds)
 	// Update garbage entities
 	DeleteGarbageEntities();
 
-	//g_theEventSystem->FireEvent("allocCount");
-	DebugRenderMessage(0.f, Rgba::RED, Rgba::RED, GetSizeString(MemTrackGetLiveByteCount()).c_str());
+	DebugRenderMessage(0.f, Rgba::RED, Rgba::RED, "camerapos:(%f ,%f, %f) Xangle:%f Yangle:%f ",m_cameraPos.x, m_cameraPos.y, m_cameraPos.z, cameraXangle, cameraYangle);
 
 	// Change direction light
 	xzAngle += deltaSeconds * 30.f;
@@ -283,6 +346,27 @@ void Game::Update(float deltaSeconds)
 
 	// Gameplay Update
 	m_curMap->Update(deltaSeconds);
+
+	// Update HUD
+	int health1 = m_curMap->PlayerA()->GetCurrentHealth();
+	int maxHealth1 = m_curMap->PlayerA()->m_attribe.maxHealth;
+	float ratio1 = health1 / (float)maxHealth1;
+	CPUMesh healthBar1 = CPUMesh();
+	AABB2 barBox1 = AABB2(Vec2(3.f, 94.f), Vec2(3.f + 40.f * ratio1, 99.f));
+	CPUMeshAddBox2D(&healthBar1, barBox1, Rgba::PINK_TAIKOH, Vec2::ZERO, Vec2::ONE);
+	delete m_healthBar;
+	m_healthBar = new GPUMesh(g_theRenderer->GetCTX());
+	m_healthBar->CreateFromCPUMesh(&healthBar1, VERTEX_TYPE_LIGHT);
+
+	int health2 = m_curMap->PlayerB()->GetCurrentHealth();
+	int maxHealth2 = m_curMap->PlayerB()->m_attribe.maxHealth;
+	float ratio2 = health2 / (float)maxHealth2;
+	CPUMesh healthBar2 = CPUMesh();
+	AABB2 barBox2 = AABB2(Vec2(147.f - ratio2 * 40.f, 94.f), Vec2(147.f, 99.f));
+	CPUMeshAddBox2D(&healthBar2, barBox2, Rgba::PINK_TAIKOH, Vec2::ZERO, Vec2::ONE);
+	delete m_healthBar_2;
+	m_healthBar_2 = new GPUMesh(g_theRenderer->GetCTX());
+	m_healthBar_2->CreateFromCPUMesh(&healthBar2, VERTEX_TYPE_LIGHT);
 }
 
 void Game::Render()
@@ -301,6 +385,16 @@ void Game::Render()
 	g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("white"), g_assetLoader->CreateOrGetSampler("linear"));
 
 	// Render HUD
+	g_theRenderer->BeginCamera(*m_HUDCamera);
+	g_theRenderer->BindShader(g_assetLoader->CreateOrGetShaderFromXMLFile("defaultShader"));
+	g_theRenderer->BindModelMatrix(Matrix44::identity);
+	g_theRenderer->DrawMesh(m_healthBarBg);
+	g_theRenderer->DrawMesh(m_healthBarBg_2);
+	g_theRenderer->DrawMesh(m_healthBarSlot);
+	g_theRenderer->DrawMesh(m_healthBarSlot_2);
+	g_theRenderer->DrawMesh(m_healthBar);
+	g_theRenderer->DrawMesh(m_healthBar_2);
+
 
 	DebugRenderScreen();
 }

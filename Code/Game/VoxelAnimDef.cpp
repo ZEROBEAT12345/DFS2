@@ -64,6 +64,5 @@ VoxelAnimFrame VoxelAnimDef::GetFrameOnTime(float time)
 	newFrame.tint.r = Interpolation(curFrame.tint.r, nextFrame.tint.r, lerpRatio);
 	newFrame.tint.g = Interpolation(curFrame.tint.g, nextFrame.tint.g, lerpRatio);
 	newFrame.tint.b = Interpolation(curFrame.tint.b, nextFrame.tint.b, lerpRatio);
-	DebuggerPrintf("rotation: %f %f %f\n", newFrame.rotation.x, newFrame.rotation.y, newFrame.rotation.z);
 	return newFrame;
 }

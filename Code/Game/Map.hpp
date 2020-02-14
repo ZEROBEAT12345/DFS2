@@ -2,6 +2,7 @@
 #include <vector>
 
 class Projectile;
+class VoxelMesh;
 class GPUMesh;
 class PlayerController;
 
@@ -29,6 +30,7 @@ public:
 	void RemoveProjectile(Projectile* p);
 
 private:
+	VoxelMesh* m_terrainVoxel;
 	GPUMesh* m_terrainMesh;
 	PlayerController* m_players[MAX_PLAYER_NUM];
 	std::vector<Projectile*> m_projectiles;

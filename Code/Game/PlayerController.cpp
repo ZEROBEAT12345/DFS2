@@ -19,6 +19,9 @@ PlayerController::~PlayerController()
 {
 	delete m_body;
 	delete m_bodyVoxel;
+
+	delete m_hand;
+	delete m_handVoxel;
 }
 
 void PlayerController::BeginFrame()
@@ -46,7 +49,6 @@ void PlayerController::Render()
 	if (m_bodyAnimator->IsPlaying())
 	{
 		const VoxelAnimFrame& curFrame = m_bodyAnimator->GetCurAnimFrame();
-		DebugRenderMessage(0.5f, Rgba::CYAN, Rgba::CYAN, "(%f, %f, %f)", curFrame.rotation.x, curFrame.rotation.y, curFrame.rotation.z);
 
 		Matrix44 animMat = Matrix44::MakeRotationForEulerZXY(curFrame.rotation, curFrame.pos);
 

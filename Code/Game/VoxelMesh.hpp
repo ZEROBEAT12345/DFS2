@@ -21,12 +21,10 @@ public:
 
 	void AddVoxel(const Vec3& pos, const Rgba& color);
 	void AddVoxel(const VoxelGrid& voxel);
-	void SetScale(float scale);
 	void LoadFromFiles(std::string filepath);
-	CPUMesh* GenerateMesh();
+	CPUMesh* GenerateMesh(float gridSize = 1.f);
 
 private:
 	Matrix44 m_transform;
-	float m_scale;
 	std::vector<VoxelGrid> m_voxels;
 };

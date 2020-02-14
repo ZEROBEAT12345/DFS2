@@ -43,8 +43,12 @@ public:
 
 private:
 	Camera* m_camera;
+	Camera* m_HUDCamera;
 	Pipeline* m_shader;
 	Material* m_mat;
+
+	// Developer
+	bool m_lockCamera = true;
 
 	// Gameplay
 	Map* m_curMap;
@@ -53,17 +57,23 @@ private:
 	std::map<std::string, SkillDefinition*> m_skillInfo;
 	std::map<std::string, VoxelAnimDef*> m_animInfo;
 
+	// HUD
+	GPUMesh* m_healthBarBg;
+	GPUMesh* m_healthBarSlot;
+	GPUMesh* m_healthBarBg_2;
+	GPUMesh* m_healthBarSlot_2;
+	GPUMesh* m_healthBar;
+	GPUMesh* m_healthBar_2;
+
 	// Test mesh
 	GPUMesh* m_cube;
 	GPUMesh* m_sphere;
 	GPUMesh* m_quad;
-	VoxelMesh* m_charVoxel[4];
-	VoxelMesh* m_terrainVoxel;
-	GPUMesh* m_tMesh;
+	VoxelMesh* m_charVoxel[4]; 
 
 	// camera 
 	Vec3 m_cameraPos = Vec3::ZERO;
-	float cameraXangle = 50.f;
+	float cameraXangle = 70.f;
 	float cameraYangle = 0.f;
 	Vec3 cameraRotateSpeed;
 	float cameraMovingSpeed;

@@ -55,7 +55,5 @@ VoxelAnimFrame VoxelAnimator::GetCurAnimFrame()
 {
 	VoxelAnimFrame curFrame = m_curAnim->GetFrameOnTime(m_curTimeCount);
 
-	DebuggerPrintf("rotation: %f %f %f\n", curFrame.rotation.x, curFrame.rotation.y, curFrame.rotation.z);
-	//DebuggerPrintf("curTime: %f\n", m_curTimeCount);
 	return curFrame;
 }

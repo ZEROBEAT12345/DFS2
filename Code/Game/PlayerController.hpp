@@ -19,11 +19,11 @@ enum SkillID
 
 struct PlayerAttrib
 {
-	int maxHealth;
-	float movingSpeed = 10.f;
+	int maxHealth = 100.f;
+	float movingSpeed = 15.f;
 	int attack;
 	int armor;
-	int colliderSize = 10.f;
+	int colliderSize = 5.f;
 	std::string SkillID_1;
 	int SkillID_2;
 	int SkillID_3;
@@ -59,11 +59,13 @@ public:
 
 	// Mutators
 	void GetDamage(int damage);
+	void SetPos(Vec2 pos) { m_pos = pos; }
 
 	// Accessors
 	Vec2 GetPos() const { return m_pos; }
 	float GetForwardAngle() const { return m_forwardAngle; }
 	int GetPlayerID() { return m_controllerID; }
+	int GetCurrentHealth() { return m_curHealth; }
 	bool IsDead() const { return m_isDead; }
 
 public:

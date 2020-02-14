@@ -19,6 +19,9 @@ Map::~Map()
 		m_players[i] = nullptr;
 	}
 
+	delete m_terrainMesh;
+	m_terrainMesh = nullptr;
+
 }
 
 void Map::Initialize()

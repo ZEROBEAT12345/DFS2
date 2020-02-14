@@ -13,11 +13,6 @@ void VoxelMesh::AddVoxel(const VoxelGrid& voxel)
 	m_voxels.push_back(voxel);
 }
 
-void VoxelMesh::SetScale(float scale)
-{
-	m_scale = scale;
-}
-
 void VoxelMesh::LoadFromFiles(std::string filepath)
 {
 	std::ifstream objFile;
@@ -60,7 +55,7 @@ void VoxelMesh::LoadFromFiles(std::string filepath)
 	objFile.close();
 }
 
-CPUMesh* VoxelMesh::GenerateMesh()
+CPUMesh* VoxelMesh::GenerateMesh(float gridSize)
 {
 	CPUMesh* voxelMesh = new CPUMesh();
 
@@ -70,8 +65,9 @@ CPUMesh* VoxelMesh::GenerateMesh()
 		CPUMeshAddCube(voxelMesh, box, v.Color);
 	}
 	
+	Matrix44 scaleMat = Matrix44::MakeUniformScale3D(gridSize);
 	Matrix44 axisMat = Matrix44("x z y");
-	voxelMesh->ApplyTransform(axisMat);
+	voxelMesh->ApplyTransform(axisMat * scaleMat);
 
 	voxelMesh->ApplyInvert();
 
