@@ -198,7 +198,7 @@ void Game::Startup()
 	m_camera = new Camera();
 	m_camera->SetPerspectiveProjection(90.f, windowAspect, 0.1f, 1000.f);
 	m_camera->SetColorTargetView(rtv);
-	m_cameraPos = Vec3(0.f, 90.f, -50.f);
+	m_cameraPos = Vec3(0.f, 110.f, -30.f);
 
 	Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
 	m_camera->SetModelMatrix(cameraMat);
@@ -330,6 +330,8 @@ void Game::Update(float deltaSeconds)
 
 		Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
 		m_camera->SetModelMatrix(cameraMat);
+
+		DebugRenderMessage(0.f, Rgba::RED, Rgba::RED, "camerapos:(%f ,%f, %f) Xangle:%f Yangle:%f ", m_cameraPos.x, m_cameraPos.y, m_cameraPos.z, cameraXangle, cameraYangle);
 	}
 	
 	// Update light configs
@@ -338,7 +340,7 @@ void Game::Update(float deltaSeconds)
 	// Update garbage entities
 	DeleteGarbageEntities();
 
-	DebugRenderMessage(0.f, Rgba::RED, Rgba::RED, "camerapos:(%f ,%f, %f) Xangle:%f Yangle:%f ",m_cameraPos.x, m_cameraPos.y, m_cameraPos.z, cameraXangle, cameraYangle);
+	
 
 	// Change direction light
 	xzAngle += deltaSeconds * 30.f;
@@ -500,7 +502,7 @@ void Game::LoadResources()
 	m_skillInfo["Newton_0"] = appleAttack;
 
 	// Load Player Attrib
-	// TBDs
+                                                                                                                                  	// TBDs
 
 	// Load voxel animation definition
 	VoxelAnimDef* newAnim = new VoxelAnimDef();

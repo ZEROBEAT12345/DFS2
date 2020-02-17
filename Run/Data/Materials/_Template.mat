@@ -1,4 +1,4 @@
-<material id="skin">
+0<material id="skin">
   <shader src="filename.shader" />
 
   <!-- defaults -->

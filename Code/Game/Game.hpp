@@ -48,7 +48,7 @@ private:
 	Material* m_mat;
 
 	// Developer
-	bool m_lockCamera = true;
+	bool m_lockCamera = false;
 
 	// Gameplay
 	Map* m_curMap;
@@ -73,7 +73,7 @@ private:
 
 	// camera 
 	Vec3 m_cameraPos = Vec3::ZERO;
-	float cameraXangle = 70.f;
+	float cameraXangle = 80.f;
 	float cameraYangle = 0.f;
 	Vec3 cameraRotateSpeed;
 	float cameraMovingSpeed;
