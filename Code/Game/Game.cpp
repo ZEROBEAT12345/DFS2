@@ -190,31 +190,13 @@ void Game::Startup()
 	aMesh->CreateFromCPUMesh(appleMesh, VERTEX_TYPE_LIGHT);
 	g_assetLoader->RegisterMesh("Apple", aMesh);
 
-	// Initialize camera config
-	cameraMovingDir = Vec3::ZERO;
-	cameraMovingSpeed = 10.0f;
 
-	TextureView *rtv = g_theRenderer->GetDefaultRTV();
-	m_camera = new Camera();
-	m_camera->SetPerspectiveProjection(90.f, windowAspect, 0.1f, 1000.f);
-	m_camera->SetColorTargetView(rtv);
-	m_cameraPos = Vec3(0.f, 110.f, -30.f);
-
-	Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
-	m_camera->SetModelMatrix(cameraMat);
-
-	m_HUDCamera = new Camera();
-	m_HUDCamera->SetOrthographicProjection(Vec2::ZERO, Vec2(150.f, 100.f));
-	m_HUDCamera->SetColorTargetView(rtv);
-
-	// Initialize light config
-	g_theRenderer->SetAmbientLight(1.0);
 
 	LoadResources();
 
 	// Initialize Map
 	m_curMap = new Map();
-	m_curMap->SetTerrain(terrainMesh);
+	m_curMap->Initialize("Data/Gameplay/Map/grassland.map");
 
 	// Initialize Player
 	for(int i = 0; i < MAX_PLAYER_NUM; i++)
@@ -226,9 +208,29 @@ void Game::Startup()
 		newPlayer->AddSkill(m_skillInfo["Newton_0"], SKILL_NORMAL_ATTACK);
 		newPlayer->AddDamagedAnim(m_animInfo["test"]);
 		newPlayer->AddAttackAnim(m_animInfo["test"]);
-		newPlayer->SetPos(Vec2(64.f, 64.f) * (i * 2 + (-1)));
+		newPlayer->SetPos(m_curMap->GetPlayerStart(i));
 		m_curMap->SetPlayer(i, newPlayer);
 	}
+
+	// Initialize camera config
+	cameraMovingDir = Vec3::ZERO;
+	cameraMovingSpeed = 10.0f;
+
+	TextureView* rtv = g_theRenderer->GetDefaultRTV();
+	m_camera = new Camera();
+	m_camera->SetPerspectiveProjection(90.f, windowAspect, 0.1f, 1000.f);
+	m_camera->SetColorTargetView(rtv);
+	m_cameraPos = Vec3(0.f, 110.f, -30.f) + m_curMap->GetMapCenterWorld();
+
+	Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
+	m_camera->SetModelMatrix(cameraMat);
+
+	m_HUDCamera = new Camera();
+	m_HUDCamera->SetOrthographicProjection(Vec2::ZERO, Vec2(150.f, 100.f));
+	m_HUDCamera->SetColorTargetView(rtv);
+
+	// Initialize light config
+	g_theRenderer->SetAmbientLight(1.0);
 
 	// Initialize HUD
 	CPUMesh healthBarBg = CPUMesh();

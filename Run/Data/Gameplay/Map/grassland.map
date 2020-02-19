@@ -1,13 +1,15 @@
-<map imgPath="Data/Images/Map/grassland.png"
-            grid ="32, 32"
-            gridscale = "8.f"     
-            color = "0.f, 1.f, 0.f, 1.f">
+<map  grid = "32, 32"
+      terrainMesh = ""
+      tileImg="Data/Images/Map/grassland.png"
+      gridscale = "8.f"     
+      color = "0, 255, 0, 255">
 
+      <border mesh= "Data/Models/Ply/rock_wall.ply"
+            scale = "1.f"/>
+      
       <healthBall 
             color = "0.f, 1.f, 0.f, 1.f"
             amount = "50"
             refill = "30.f" />
 
-      <border mesh= "Data/Models/Ply/rock_wall.ply"
-            scale = ""/>
 </map>

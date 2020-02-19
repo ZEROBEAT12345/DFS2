@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Math/Vec2.hpp"
+#include "Engine/Math/Vec3.hpp"
 
 class VoxelMesh;
 class GPUMesh;
@@ -59,7 +60,7 @@ public:
 
 	// Mutators
 	void GetDamage(int damage);
-	void SetPos(Vec2 pos) { m_pos = pos; }
+	void SetPos(Vec3 pos) { m_pos = Vec2(pos.x, pos.z); }
 
 	// Accessors
 	Vec2 GetPos() const { return m_pos; }
