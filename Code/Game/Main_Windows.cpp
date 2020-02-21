@@ -15,6 +15,7 @@
 
 extern App* g_theApp;				// Created and owned by Main_Windows.cpp
 WindowContext* g_theWindow;
+double g_lastFrameTime = 0.0;
 
 //-----------------------------------------------------------------------------------------------
 // Handles Windows (Win32) messages/events; i.e. the OS is trying to tell us something happened.

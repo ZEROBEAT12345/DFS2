@@ -26,7 +26,8 @@ PlayerController::~PlayerController()
 
 void PlayerController::BeginFrame()
 {
-
+	// Handle input here
+	// TBD
 }
 
 void PlayerController::Update(float deltaSeconds)

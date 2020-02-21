@@ -25,6 +25,14 @@ Map::~Map()
 	delete m_terrainMesh;
 	m_terrainMesh = nullptr;
 
+	delete m_terrainVoxel;
+	m_terrainVoxel = nullptr;
+
+	delete m_borderMesh;
+	m_borderMesh = nullptr;
+
+	delete m_borderVoxel;
+	m_borderVoxel = nullptr;
 }
 
 void Map::Initialize(std::string defFilePath)

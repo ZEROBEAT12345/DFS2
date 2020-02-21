@@ -8,6 +8,7 @@ class Map;
 class SkillDefinition;
 class VoxelAnimator;
 class VoxelAnimDef;
+class Rigidbody2D;
 
 enum SkillID
 {
@@ -20,7 +21,7 @@ enum SkillID
 
 struct PlayerAttrib
 {
-	int maxHealth = 100.f;
+	int maxHealth = 100;
 	float movingSpeed = 15.f;
 	int attack;
 	int armor;
@@ -91,6 +92,8 @@ private:
 	VoxelAnimator* m_handAnimator = nullptr;
 	VoxelAnimDef* m_damagedAnim = nullptr;
 	VoxelAnimDef* m_attackAnim = nullptr;
+
+	Rigidbody2D* m_rigidBody = nullptr;
 
 	// Gameplay
 	int m_curHealth = 100;

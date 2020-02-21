@@ -1,15 +1,19 @@
 #include "Engine/Render/AssetLoader.hpp"
 #include "Engine/Render/ImmediateRenderer.hpp"
 #include "Engine/Math/Matrix44.hpp"
+#include "Engine/Physics/PhysicsSystem.hpp"
 #include "Game/Projectile.hpp"
 #include "Game/ProjectileDef.hpp"
 
 extern AssetLoader* g_assetLoader;
 extern ImmediateRenderer* g_theRenderer;
+extern PhysicsSystem* g_thePhysicSystem;
 
 void Projectile::Initialize()
 {
 	m_mesh = g_assetLoader->CreateOrGetMeshFromFile(m_def->meshName.c_str());
+
+	//m_rigidbody = 
 }
 
 void Projectile::Update(float deltaSeconds)

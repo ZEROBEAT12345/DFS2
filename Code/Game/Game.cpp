@@ -168,14 +168,6 @@ void Game::Startup()
 	g_theEventSystem->SubscribeEventCallbackFunction("DirColor", SetDirLightColor);
 	g_theEventSystem->SubscribeEventCallbackFunction("DirDir", SetDirLightDir);
 
-	g_theDevConsole->PrintString("hello", Rgba(0.6f, 0.5f, 0.7f, 1.0f));
-
-	g_theEventSystem->SubscribeEventCallbackFunction("allocCount", TrackMemoryCount);
-	g_theEventSystem->SubscribeEventCallbackFunction("byteCount", TrackMemoryByteCount);
-	g_theEventSystem->SubscribeEventCallbackFunction("logMemory", LogTrackMemory);
-	g_theEventSystem->SubscribeEventCallbackFunction("AddFilter", AddFilter);
-	g_theEventSystem->SubscribeEventCallbackFunction("TestLog", TestLog);
-
 	// Initialize test scene
 	VoxelMesh* terrainVoxel = new VoxelMesh();
 	terrainVoxel->LoadFromFiles("Data/Models/Ply/terrain.ply");
@@ -189,8 +181,6 @@ void Game::Startup()
 	CPUMesh* appleMesh = appleVoxel->GenerateMesh(0.5f);
 	aMesh->CreateFromCPUMesh(appleMesh, VERTEX_TYPE_LIGHT);
 	g_assetLoader->RegisterMesh("Apple", aMesh);
-
-
 
 	LoadResources();
 

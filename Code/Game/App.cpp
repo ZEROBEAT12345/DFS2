@@ -14,6 +14,7 @@
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/Time.hpp"
+#include "Engine/Core/Clock.hpp"
 #include "Engine/Core/WindowContext.hpp"
 #include "Engine/Core/DebugRenderSystem.hpp"
 #include "Engine/Core/EventSystem.hpp"
@@ -22,6 +23,7 @@
 #include "Engine/Core/Debug/MemoryTrack.hpp"
 #include "Engine/Core/Debug/Log.hpp"
 #include "Engine/Core/Async/RingBuffer.hpp"
+#include "Engine/Physics/PhysicsSystem.hpp"
 
 #define DX11
 
@@ -38,19 +40,25 @@
 App* g_theApp = nullptr;				// Created and owned by Main_Windows.cpp
 extern WindowContext* g_theWindow;
 
+BitmapFont* g_testFont = nullptr;
 RandomNumberGenerator* g_random = nullptr;
 RHIDeviceContext* g_context = nullptr;
 AssetLoader* g_assetLoader = nullptr;
 ImmediateRenderer* g_theRenderer = nullptr;		// Created and owned by the App
 InputSystem* g_theInputSystem = nullptr;
 AudioSystem* g_theAudio = nullptr;
+PhysicsSystem* g_thePhysicSystem = nullptr;
+Clock* g_gameClock = nullptr;
 UnitTest* gAllTests = nullptr;
 extern DevConsole* g_theDevConsole;
 extern EventSystem* g_theEventSystem;
-using namespace DebugRender;
+
 extern MPSCRingBuffer* g_ringBuffer;
 
-BitmapFont* g_testFont = nullptr;
+using namespace DebugRender;
+using namespace SystemClock;
+
+
 
 UNITTEST("testUnitTest", "test", 0)
 {
@@ -97,6 +105,11 @@ void App::Startup()
 {
 	LogSystemStartup("Data/testLog.txt");
 
+	SystemClockStartup();
+	g_gameClock = new Clock();
+	g_gameClock->Dilate(1.f);
+
+
 	g_random = new RandomNumberGenerator();
 
 	// Render pipeline
@@ -122,6 +135,11 @@ void App::Startup()
 
 	g_theDevConsole = new DevConsole( g_testFont );
 	g_theDevConsole->Startup();
+
+	g_thePhysicSystem = new PhysicsSystem();
+
+	g_thePhysicSystem->StartUp(g_gameClock);
+	g_thePhysicSystem->SetGravity(Vec2(0.f, -9.8f));
 
 	g_theEventSystem = new EventSystem();
 
@@ -168,6 +186,9 @@ void App::Shutdown()
 	delete g_theInputSystem;
 	g_theInputSystem = nullptr;
 
+	delete g_thePhysicSystem;
+	g_thePhysicSystem = nullptr;
+
 	LogSystemShutdown();
 }
 
@@ -175,10 +196,7 @@ void App::RunFrame()
 {
 	BeginFrame();
 
-	m_timeThisframebegan = GetCurrentTimeSeconds();
-	float deltaTime = (float)(m_timeThisframebegan - m_timeLastframebegan);
-	m_timeLastframebegan = m_timeThisframebegan;
-	Update(deltaTime);
+	Update((float)GetSystemClockFrameTime());
 
 	RenderFrame();
 
@@ -288,6 +306,9 @@ bool App::HandleCharRequested(unsigned char keyCode)
 
 void App::BeginFrame()
 {
+	SystemClockBeginFrame();
+
+	g_thePhysicSystem->BeginFrame();
 	g_theRenderer->BeginFrame();
 	g_theInputSystem->BeginFrame();
 }
@@ -299,6 +320,9 @@ void App::Update( float deltaSeconds )
 
 	if(m_isSlowMo)
 		deltaSeconds *= 0.1f;
+
+	g_thePhysicSystem->FixedUpdate();
+	g_thePhysicSystem->PreRender();
 
 	m_theGame->Update(deltaSeconds);
 

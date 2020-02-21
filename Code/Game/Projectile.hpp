@@ -2,6 +2,7 @@
 #include "Engine/Math/Vec2.hpp"
 #include <string>
 
+class Rigidbody2D;
 class ProjectileDef;
 class GPUMesh;
 class Map;
@@ -11,11 +12,12 @@ class Projectile
 	friend Map;
 
 public:
-	Projectile(ProjectileDef* def, Vec2 startPos = Vec2(0.f, 0.f), float forwardAngle = 0.f, float height = 0.f) :
+	Projectile(ProjectileDef* def, Vec2 startPos = Vec2(0.f, 0.f), float forwardAngle = 0.f, float height = 0.f, int playerID = 0) :
 		m_def(def),
 		m_pos(startPos),
 		m_forwardAngle(forwardAngle),
-		m_height(height)
+		m_height(height),
+		m_playerID(playerID)
 	{}
 
 	~Projectile() {}
@@ -43,5 +45,6 @@ private:
 	float m_height = 0.f;
 	float m_lifespan = 0.f;
 	int m_playerID = 0;
-	GPUMesh* m_mesh;
+	GPUMesh* m_mesh = nullptr;
+	Rigidbody2D* m_rigidbody = nullptr;
 };

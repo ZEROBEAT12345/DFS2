@@ -1,6 +1,6 @@
 #pragma once
 class VoxelAnimDef;
-class VoxelAnimFrame;
+struct VoxelAnimFrame;
 
 enum eVoxelAnimPlayBackType
 {
