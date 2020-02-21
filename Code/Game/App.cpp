@@ -109,7 +109,6 @@ void App::Startup()
 	g_gameClock = new Clock();
 	g_gameClock->Dilate(1.f);
 
-
 	g_random = new RandomNumberGenerator();
 
 	// Render pipeline

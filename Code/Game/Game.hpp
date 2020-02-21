@@ -66,9 +66,6 @@ private:
 	GPUMesh* m_healthBar_2;
 
 	// Test mesh
-	GPUMesh* m_cube;
-	GPUMesh* m_sphere;
-	GPUMesh* m_quad;
 	VoxelMesh* m_charVoxel[4]; 
 
 	// camera 

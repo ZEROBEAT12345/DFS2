@@ -169,11 +169,6 @@ void Game::Startup()
 	g_theEventSystem->SubscribeEventCallbackFunction("DirDir", SetDirLightDir);
 
 	// Initialize test scene
-	VoxelMesh* terrainVoxel = new VoxelMesh();
-	terrainVoxel->LoadFromFiles("Data/Models/Ply/terrain.ply");
-	GPUMesh* terrainMesh = new GPUMesh(g_theRenderer->GetCTX());
-	CPUMesh* tMesh = terrainVoxel->GenerateMesh(2.f);
-	terrainMesh->CreateFromCPUMesh(tMesh, VERTEX_TYPE_LIGHT);
 
 	VoxelMesh* appleVoxel = new VoxelMesh();
 	appleVoxel->LoadFromFiles("Data/Models/Ply/apple.ply");
