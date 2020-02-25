@@ -1,6 +1,8 @@
 #include "Engine/Render/ImmediateRenderer.hpp"
 #include "Engine/Math/Algorithms/MathUtils.hpp"
+#include "Engine/Math/Manifold2D.hpp"
 #include "Engine/Math/Shapes/Disc.hpp"
+#include "Engine/Math/Shapes/AABB2.hpp"
 #include "Engine/Core/DebugRenderSystem.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/XmlUtils.hpp"
@@ -74,7 +76,7 @@ void Map::Initialize(std::string defFilePath)
 		{
 			for (int j = 0; j < tileGrid.y; j++)
 			{
-				grid.pos = Vec3(i, j, -1);
+				grid.pos = Vec3(i, j, 0);
 				m_terrainVoxel->AddVoxel(grid);
 			}
 		}
@@ -128,7 +130,7 @@ void Map::Initialize(std::string defFilePath)
 
 void Map::Update(float deltaSeconds)
 {
-	// Handle Collision
+	// Handle Collision For Player and bullets
 	for(int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
 		for (int j = 0; j < m_projectiles.size(); j++)
@@ -163,6 +165,20 @@ void Map::Update(float deltaSeconds)
 		}
 	}
 
+	// Handled Collision For players
+	Disc discA = Disc(m_players[0]->GetPos(), m_players[0]->m_attribe.colliderSize);
+	Disc discB = Disc(m_players[1]->GetPos(), m_players[1]->m_attribe.colliderSize);
+	Manifold2D* m = new Manifold2D();
+	if(GetManifoldForDiscWithDisc(m, discA, discB))
+	{
+		m_players[0]->m_pos += m->normal * m->penetration / 2.f;
+		m_players[1]->m_pos -= m->normal * m->penetration / 2.f;
+	}
+
+	// Handled Collision For tiles and players
+	CheckPlayerSurroundedTiles(0);
+	CheckPlayerSurroundedTiles(1);
+
 	for (int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
 		m_players[i]->Update(deltaSeconds);
@@ -181,7 +197,7 @@ void Map::Render()
 {
 	// Render Terrain
 	Matrix44 terrainModelMat = Matrix44::identity;
-	terrainModelMat.SetTranslation(Vec3(0.f, -3.f, 12.f));
+	terrainModelMat.SetTranslation(Vec3(0.f, (-.5f) * m_gridScale, 0.f));
 	g_theRenderer->BindModelMatrix(terrainModelMat);
 	g_theRenderer->DrawMesh(m_terrainMesh);
 
@@ -200,7 +216,7 @@ void Map::Render()
 			{
 				// Render borders
 				Matrix44 borderMat = Matrix44::identity;
-				borderMat.SetTranslation(Vec3((i + .5f) * m_gridScale, 0.f, (j + .5f) * m_gridScale));
+				borderMat.SetTranslation(Vec3(i * m_gridScale, 0.f, j * m_gridScale));
 				g_theRenderer->BindModelMatrix(borderMat);
 				g_theRenderer->DrawMesh(m_borderMesh);
 			}
@@ -241,6 +257,76 @@ IntVec2 Map::GetTileFromIndex(int idx)
 	int y = idx / m_dimension.x;
 
 	return IntVec2(x, y);
+}
+
+void Map::CheckPlayerSurroundedTiles(int playerID)
+{
+	// Only check surrounded tiles for player
+	int x = (int)floor(m_players[playerID]->m_pos.x / m_gridScale + 0.5f);
+	int y = (int)floor(m_players[playerID]->m_pos.y / m_gridScale + 0.5f);
+	int curX = x;
+	int curY = y;
+	int dx = 1;
+	int dy = 1;
+
+	int tileRangeA = (int)floor(m_players[playerID]->m_attribe.colliderSize / m_gridScale) + 1;
+	for (int r = 0; r <= tileRangeA; r++)
+	{
+		curX = 0 + x;
+		curY = r + y;
+		dx = 1;
+		dy = 1;
+
+		for (int i = 0; i < 4 * r; i++)
+		{
+			if (curX - x == 0 || curY - y == 0)
+			{
+				if (dx == 1 && dy == -1)
+				{
+					dx = -1;
+					dy = -1;
+				}
+				else if (dx == -1 && dy == -1)
+				{
+					dx = -1;
+					dy = 1;
+				}
+				else if (dx == -1 && dy == 1)
+				{
+					dx = 1;
+					dy = 1;
+				}
+				else if (dx == 1 && dy == 1)
+				{
+					dx = 1;
+					dy = -1;
+				}
+			}
+
+			// Resolve Collision for each tile
+			if (curX >= 0 && curX < m_dimension.x && curY >= 0 && curY < m_dimension.y)
+			{
+				int idx = GetIndexFromTile(IntVec2(curX, curY));
+				if (m_collisionTile[idx])
+				{
+					Vec2 bottomLeft = Vec2(curX * m_gridScale, curY * m_gridScale) - Vec2(m_gridScale, m_gridScale) * .5f;
+					Vec2 topRight = bottomLeft + Vec2(m_gridScale, m_gridScale);
+					AABB2 tileBox = AABB2(bottomLeft, topRight);
+					Disc disc = Disc(m_players[playerID]->GetPos(), m_players[playerID]->m_attribe.colliderSize);
+
+					Manifold2D* m = new Manifold2D();
+					if (GetManifoldForAABB2WithDisc(m, tileBox, disc))
+					{
+						m_players[playerID]->m_pos -= m->normal * m->penetration;
+					}
+				}
+
+			}
+
+			curX += dx;
+			curY += dy;
+		}
+	}
 }
 
 void Map::GenerateTilesFromImages(std::string imageFile)

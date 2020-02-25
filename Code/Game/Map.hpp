@@ -27,14 +27,23 @@ public:
 	PlayerController* PlayerA() const { return m_players[0]; }
 	PlayerController* PlayerB() const { return m_players[1]; }
 	IntVec2 GetMapGrid() const { return m_dimension; }
+	Vec2 GetTileCenter(IntVec2 tile) 
+	{
+		return Vec2((tile.x + .5) * m_gridScale, (tile.y + .5) * m_gridScale);
+	}
+
 	Vec3 GetMapCenterWorld() const {
 		return Vec3(m_dimension.x * m_gridScale / 2.f,
 			0.f, m_dimension.y * m_gridScale / 2.f); }
+
 	Vec3 GetPlayerStart(int playerID)
 	{
 		return Vec3(m_playerStart[playerID].x * m_gridScale,
 			0.f, m_playerStart[playerID].y * m_gridScale);
 	}
+
+	// Collision
+	void CheckPlayerSurroundedTiles(int playerID);
 
 	// Mutators
 	void GenerateTilesFromImages(std::string imageFile);

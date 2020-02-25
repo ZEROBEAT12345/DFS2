@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
+#include "Engine/Physics/Transform2D.hpp"
 
 class VoxelMesh;
 class GPUMesh;
@@ -35,6 +36,7 @@ struct PlayerAttrib
 class PlayerController
 {
 	friend SkillDefinition;
+	friend Map;
 
 public:
 	PlayerController(int controllerID, Map* map) : m_controllerID(controllerID), m_curMap(map) {}
@@ -76,7 +78,7 @@ public:
 
 private:
 	// Status
-	Vec2 m_pos = Vec2(0.f,0.f);
+	Vec2 m_pos = Vec2::ZERO;
 	float m_forwardAngle = 0.f;
 	float m_height = 0.f;
 
@@ -93,7 +95,7 @@ private:
 	VoxelAnimDef* m_damagedAnim = nullptr;
 	VoxelAnimDef* m_attackAnim = nullptr;
 
-	Rigidbody2D* m_rigidBody = nullptr;
+	Rigidbody2D* m_rigidbody = nullptr;
 
 	// Gameplay
 	int m_curHealth = 100;

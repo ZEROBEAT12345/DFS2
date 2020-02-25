@@ -4,6 +4,7 @@
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/DebugRenderSystem.hpp"
+#include "Engine/Physics/PhysicsSystem.hpp"
 #include "Game/PlayerController.hpp"
 #include "Game/VoxelMesh.hpp"
 #include "Game/SkillDefinition.hpp"
@@ -12,7 +13,8 @@
 #include "Game/VoxelAnimDef.hpp"
 
 extern ImmediateRenderer* g_theRenderer;
-extern InputSystem* g_theInputSystem;
+extern InputSystem* g_theInputSystem; 
+extern PhysicsSystem* g_thePhysicSystem;
 using namespace DebugRender;
 
 PlayerController::~PlayerController()

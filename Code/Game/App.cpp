@@ -138,7 +138,7 @@ void App::Startup()
 	g_thePhysicSystem = new PhysicsSystem();
 
 	g_thePhysicSystem->StartUp(g_gameClock);
-	g_thePhysicSystem->SetGravity(Vec2(0.f, -9.8f));
+	g_thePhysicSystem->SetGravity(Vec2(0.f, 0.f));
 
 	g_theEventSystem = new EventSystem();
 
