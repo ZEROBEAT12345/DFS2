@@ -67,6 +67,12 @@
     <ClCompile Include="VoxelAnimator.cpp">
       <Filter>Gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="VoxelParticle.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>playable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -104,6 +110,12 @@
     </ClInclude>
     <ClInclude Include="VoxelAnimator.hpp">
       <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelParticle.hpp">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.hpp">
+      <Filter>playable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

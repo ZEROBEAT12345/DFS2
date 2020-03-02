@@ -215,6 +215,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameCommon.cpp" />
     <ClCompile Include="Main_Windows.cpp" />
@@ -226,10 +227,12 @@
     <ClCompile Include="VoxelAnimator.cpp" />
     <ClCompile Include="VoxelAnimDef.cpp" />
     <ClCompile Include="VoxelMesh.cpp" />
+    <ClCompile Include="VoxelParticle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp" />
     <ClInclude Include="EngineBuildPreferences.hpp" />
+    <ClInclude Include="Entity.hpp" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="GameCommon.hpp" />
     <ClInclude Include="Map.hpp" />
@@ -240,6 +243,7 @@
     <ClInclude Include="VoxelAnimator.hpp" />
     <ClInclude Include="VoxelAnimDef.hpp" />
     <ClInclude Include="VoxelMesh.hpp" />
+    <ClInclude Include="VoxelParticle.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\Run\Data\Shaders\default_bitangentAsColor.hlsl">

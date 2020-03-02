@@ -13,7 +13,7 @@ VoxelAnimFrame VoxelAnimDef::GetFrameOnTime(float time)
 	float ratio = time / m_animTime;
 
 	// GET start frame and end frame to lerp between
-	int startIdx, endIdx;
+	size_t startIdx, endIdx;
 
 	startIdx = 0;
 	endIdx = m_frames.size() - 1;

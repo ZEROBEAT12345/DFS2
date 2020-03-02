@@ -2,6 +2,7 @@
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
 #include "Engine/Physics/Transform2D.hpp"
+#include "Game/Entity.hpp"
 
 class VoxelMesh;
 class GPUMesh;
@@ -26,14 +27,14 @@ struct PlayerAttrib
 	float movingSpeed = 15.f;
 	int attack;
 	int armor;
-	int colliderSize = 5.f;
+	float colliderSize = 5.f;
 	std::string SkillID_1;
 	int SkillID_2;
 	int SkillID_3;
 	int SkillID_4;
 }; 
 
-class PlayerController
+class PlayerController: public Entity
 {
 	friend SkillDefinition;
 	friend Map;
@@ -43,8 +44,8 @@ public:
 	~PlayerController();
 
 	void BeginFrame();
-	void Update(float deltaSeconds);
-	void Render();
+	void Update(float deltaSeconds) override;
+	void Render() const override;
 
 	void Initialize();
 	void Die();

@@ -110,6 +110,7 @@ bool SetDirLightDir(EventArgs& Dir)
 
 bool TrackMemoryCount(EventArgs& arg)
 {
+	UNUSED(arg)
 	size_t count = MemTrackGetLiveAllocationCount();
 
 	g_theDevConsole->PrintString("Alloc Count:" + std::to_string(count), Rgba(0.9f, 0.5f, 0.5f, 1.0f));
@@ -118,6 +119,7 @@ bool TrackMemoryCount(EventArgs& arg)
 
 bool TrackMemoryByteCount(EventArgs& arg)
 {
+	UNUSED(arg)
 	size_t byteCount = MemTrackGetLiveByteCount();
 
 	g_theDevConsole->PrintString("Byte Count:" + GetSizeString(byteCount), Rgba(0.9f, 0.5f, 0.5f, 1.0f));
@@ -126,6 +128,7 @@ bool TrackMemoryByteCount(EventArgs& arg)
 
 bool LogTrackMemory(EventArgs& arg)
 {
+	UNUSED(arg)
 	MemTrackLogLiveAllocations();
 	return false;
 }
@@ -356,6 +359,14 @@ void Game::Update(float deltaSeconds)
 	delete m_healthBar_2;
 	m_healthBar_2 = new GPUMesh(g_theRenderer->GetCTX());
 	m_healthBar_2->CreateFromCPUMesh(&healthBar2, VERTEX_TYPE_LIGHT);
+
+	// Update game time
+	m_gameTime -= deltaSeconds;
+	if(m_gameTime < m_deathZoneStartTime)
+	{
+		m_curMap->StartDeathZone();
+	}
+	DebugRenderMessage(.0F, Rgba::PINK_IKKONZOME, Rgba::PINK_IKKONZOME, "Countdown: %f", m_gameTime);
 }
 
 void Game::Render()
@@ -383,7 +394,6 @@ void Game::Render()
 	g_theRenderer->DrawMesh(m_healthBarSlot_2);
 	g_theRenderer->DrawMesh(m_healthBar);
 	g_theRenderer->DrawMesh(m_healthBar_2);
-
 
 	DebugRenderScreen();
 }

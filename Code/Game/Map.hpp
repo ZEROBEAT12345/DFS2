@@ -29,7 +29,7 @@ public:
 	IntVec2 GetMapGrid() const { return m_dimension; }
 	Vec2 GetTileCenter(IntVec2 tile) 
 	{
-		return Vec2((tile.x + .5) * m_gridScale, (tile.y + .5) * m_gridScale);
+		return Vec2((tile.x + .5f) * m_gridScale, (tile.y + .5f) * m_gridScale);
 	}
 
 	Vec3 GetMapCenterWorld() const {
@@ -52,6 +52,9 @@ public:
 	void AddProjectile(Projectile* p);
 	void RemoveProjectile(Projectile* p);
 
+	// DeathZone
+	void StartDeathZone() { m_isDeathZoneOn = true; }
+
 private:
 	// Map info
 	IntVec2 m_dimension;
@@ -64,6 +67,14 @@ private:
 	VoxelMesh* m_borderVoxel = nullptr;
 	GPUMesh* m_terrainMesh = nullptr;
 	GPUMesh* m_borderMesh = nullptr;
+
+	// Death Zone
+	bool m_isDeathZoneOn = false;
+	float m_deathZoneShrinkTime = 30.f;
+	float m_deathZoneCurrentRatio = 1.f;
+	int m_deathZoneDamage = 10;
+	float m_deathZoneDamageCounter = 1.0f;
+	GPUMesh* m_deathZoneMesh = nullptr;
 
 	// Map stuffs
 	PlayerController* m_players[MAX_PLAYER_NUM];

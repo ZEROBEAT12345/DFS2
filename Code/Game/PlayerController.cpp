@@ -38,7 +38,7 @@ void PlayerController::Update(float deltaSeconds)
 	m_bodyAnimator->Update(deltaSeconds);
 }
 
-void PlayerController::Render()
+void PlayerController::Render() const
 {
 	Matrix44 characterMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
 	characterMat.SetTranslation(Vec3(m_pos.x, 0.f, m_pos.y));
@@ -117,7 +117,6 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 	}
 
 	// Handle Skill
-	float rTrigger = controller.GetRightTrigger();
 
 	KeyButtonState Xstate = controller.GetButtonState(XBOX_BUTTON_ID_X);
 	if(Xstate.WasJustPressed())

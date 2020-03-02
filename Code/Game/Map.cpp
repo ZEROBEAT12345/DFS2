@@ -71,12 +71,11 @@ void Map::Initialize(std::string defFilePath)
 		VoxelGrid grid = {};
 		grid.Color = tileColor;
 
-		int tileNum = tileGrid.x * tileGrid.y;
 		for (int i = 0; i < tileGrid.x; i++)
 		{
 			for (int j = 0; j < tileGrid.y; j++)
 			{
-				grid.pos = Vec3(i, j, 0);
+				grid.pos = Vec3((float)i, (float)j, 0);
 				m_terrainVoxel->AddVoxel(grid);
 			}
 		}
@@ -156,7 +155,7 @@ void Map::Update(float deltaSeconds)
 
 			if(DoDiscsOverlap(discA, discB))
 			{
-				int damage = p->m_def->damageCoef;
+				int damage = (int)p->m_def->damageCoef;
 				player->GetDamage(damage);
 				p->Die();
 
@@ -191,6 +190,32 @@ void Map::Update(float deltaSeconds)
 
 		p->Update(deltaSeconds);
 	}
+
+	// Update death zone
+	if(m_isDeathZoneOn)
+	{
+		m_deathZoneCurrentRatio -= deltaSeconds / m_deathZoneShrinkTime;
+
+		m_deathZoneDamageCounter += deltaSeconds;
+		if(m_deathZoneDamageCounter >= 1.0f)
+		{
+			m_deathZoneDamageCounter -= 1.0f;
+
+			// Deal Damage
+			Vec3 mapCenterWorld = GetMapCenterWorld();
+			Disc deathZoneDisc = Disc(Vec2(mapCenterWorld.x, mapCenterWorld.z), m_dimension.x * m_gridScale / 2.f * m_deathZoneCurrentRatio);
+			
+			for(int i = 0; i < MAX_PLAYER_NUM; i++)
+			{
+				Disc playerDisc = Disc(m_players[i]->m_pos, m_players[i]->m_attribe.colliderSize);
+				if(!DoDiscsOverlap(deathZoneDisc, playerDisc))
+				{
+					m_players[i]->GetDamage(m_deathZoneDamage);
+				}
+			}
+		}
+	}
+	
 }
 
 void Map::Render()
@@ -230,6 +255,24 @@ void Map::Render()
 			continue;
 
 		p->Render();
+	}
+
+	// Render death zone
+	if(m_isDeathZoneOn)
+	{
+		GPUMesh* dzMesh = new GPUMesh(g_theRenderer->GetCTX());
+		CPUMesh* deathZoneMesh = new CPUMesh();
+		CPUMeshAddDisc2D(deathZoneMesh, Vec2::ZERO, m_deathZoneCurrentRatio * m_gridScale * m_dimension.x / 2.f, Rgba(.8f, 0.f, 0.f, .5f), 20);
+		dzMesh->CreateFromCPUMesh(deathZoneMesh, VERTEX_TYPE_LIGHT);
+
+		Matrix44 deathZoneMat = Matrix44::MakeXRotationDegrees(90.f);
+		Matrix44 translation = Matrix44::MakeTranslation3D(Vec3(m_gridScale * m_dimension.x / 2.f, .5f, m_gridScale * m_dimension.y / 2.f));
+
+		g_theRenderer->BindModelMatrix(translation * deathZoneMat);
+		g_theRenderer->DrawMesh(dzMesh);
+
+		delete dzMesh;
+		delete deathZoneMesh;
 	}
 }
 
@@ -374,7 +417,7 @@ void Map::GenerateTilesFromImages(std::string imageFile)
 void Map::AddProjectile(Projectile* p)
 {
 	bool isSpare = false;
-	int spareNum;
+	size_t spareNum = 0;
 	for (size_t i = 0; i < m_projectiles.size(); i++)
 	{
 		if (m_projectiles[i] == nullptr)
