@@ -6,6 +6,7 @@
 #include "Engine/Core/DebugRenderSystem.hpp"
 #include "Engine/Core/Image.hpp"
 #include "Engine/Core/XmlUtils.hpp"
+#include "Engine/Math/Algorithms/RandomNumberGenerator.hpp"
 #include "Game/Map.hpp"
 #include "Game/Projectile.hpp"
 #include "Game/ProjectileDef.hpp"
@@ -14,6 +15,7 @@
 
 using namespace DebugRender;
 
+extern RandomNumberGenerator* g_random;
 extern ImmediateRenderer* g_theRenderer;
 
 Map::~Map()
@@ -35,6 +37,15 @@ Map::~Map()
 
 	delete m_borderVoxel;
 	m_borderVoxel = nullptr;
+
+	delete m_particleVoxels;
+	m_particleVoxels = nullptr;
+
+	delete m_particleCPUmesh;
+	m_particleCPUmesh = nullptr;
+
+	delete m_particleMesh;
+	m_particleMesh = nullptr;
 }
 
 void Map::Initialize(std::string defFilePath)
@@ -124,6 +135,32 @@ void Map::Initialize(std::string defFilePath)
 		}
 
 		parameterDef = parameterDef->NextSiblingElement();
+	}
+
+	// Prototype particle
+	particlePrototype = VoxelParticle
+	{
+		false,
+		nullptr,
+		nullptr,
+		Vec3::ZERO,
+		Vec3(0.f, 5.f, 0.f),
+		{
+			Rgba::BLUE,
+			Rgba::BLACK,
+			Rgba::GREEN
+		},
+		0.5f,
+		0.f,
+		10.f,
+		{0.f,0.f,0.f},
+		{0.f,0.f,0.f},
+		{0.f,0.f,0.f}
+	};
+
+	for(int i= 0; i < MAX_PARTICLE_NUM; i++)
+	{
+		m_particles[i] = VoxelParticle();
 	}
 }
 
@@ -216,6 +253,46 @@ void Map::Update(float deltaSeconds)
 		}
 	}
 	
+	// Particle
+	int randomAngle;
+
+	for(int i = 0; i < 10; i++)
+	{
+		randomAngle = g_random->GetRandomIntInRange(0, 360);
+		particlePrototype.velocity = Vec3(CosDegrees(randomAngle), 1.f, SinDegrees(randomAngle));
+		spawnParticle(particlePrototype);
+	}
+
+	if (m_particleVoxels)
+		delete m_particleVoxels;
+
+	m_particleVoxels = new VoxelMesh();
+
+	for(int i = 0; i < MAX_PARTICLE_NUM; i++)
+	{
+		if(m_particles[i].isAlive)
+		{
+			m_particles[i].Update(deltaSeconds);
+
+			VoxelGrid voxel =
+			{
+				m_particles[i].pos,
+				m_particles[i].GetcurColor()
+			};
+			m_particleVoxels->AddVoxel(voxel);
+		}	
+	}
+
+	if (m_particleCPUmesh)
+		delete m_particleCPUmesh;
+
+	m_particleCPUmesh = m_particleVoxels->GenerateMesh(3.f);
+
+	if (m_particleMesh)
+		delete m_particleMesh;
+
+	m_particleMesh = new GPUMesh(g_theRenderer->GetCTX());
+	m_particleMesh->CreateFromCPUMesh(m_particleCPUmesh, VERTEX_TYPE_LIGHT);
 }
 
 void Map::Render()
@@ -224,7 +301,7 @@ void Map::Render()
 	Matrix44 terrainModelMat = Matrix44::identity;
 	terrainModelMat.SetTranslation(Vec3(0.f, (-.5f) * m_gridScale, 0.f));
 	g_theRenderer->BindModelMatrix(terrainModelMat);
-	g_theRenderer->DrawMesh(m_terrainMesh);
+	//g_theRenderer->DrawMesh(m_terrainMesh);
 
 	for (int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
@@ -274,6 +351,10 @@ void Map::Render()
 		delete dzMesh;
 		delete deathZoneMesh;
 	}
+
+	// Render particles
+	g_theRenderer->BindModelMatrix(Matrix44::identity);
+	g_theRenderer->DrawMesh(m_particleMesh);
 }
 
 void Map::DeleteGarbageEntities()
@@ -442,6 +523,31 @@ void Map::RemoveProjectile(Projectile* p)
 		{
 			m_projectiles[i] = nullptr;
 			break;
+		}
+	}
+}
+
+void Map::spawnParticle(VoxelParticle prototype)
+{
+	for(int i = m_curEmptyParticleSlot; i < MAX_PARTICLE_NUM; i++)
+	{
+		if(m_particles[i].isAlive == false)
+		{
+			m_particles[i] = prototype;
+			m_particles[i].isAlive = true;
+			m_curEmptyParticleSlot = i;
+			return;
+		}
+	}
+
+	for (int i = 0; i < m_curEmptyParticleSlot; i++)
+	{
+		if (m_particles[i].isAlive == false)
+		{
+			m_particles[i] = prototype;
+			m_particles[i].isAlive = true;
+			m_curEmptyParticleSlot = i;
+			return;
 		}
 	}
 }

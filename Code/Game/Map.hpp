@@ -2,13 +2,16 @@
 #include <vector>
 #include <string>
 #include "Engine/Math/IntVec2.hpp"
+#include "Game/VoxelParticle.hpp"
 
 class Projectile;
 class VoxelMesh;
+class CPUMesh;
 class GPUMesh;
 class PlayerController;
 
 #define MAX_PLAYER_NUM 2
+#define MAX_PARTICLE_NUM 1024
 
 class Map
 {
@@ -55,6 +58,9 @@ public:
 	// DeathZone
 	void StartDeathZone() { m_isDeathZoneOn = true; }
 
+	// Particle
+	void spawnParticle(VoxelParticle prototype);
+
 private:
 	// Map info
 	IntVec2 m_dimension;
@@ -77,6 +83,13 @@ private:
 	GPUMesh* m_deathZoneMesh = nullptr;
 
 	// Map stuffs
+	// Particles
+	VoxelParticle particlePrototype;
+	VoxelParticle m_particles[MAX_PARTICLE_NUM];
+	int m_curEmptyParticleSlot = 0;
+	VoxelMesh* m_particleVoxels = nullptr;
+	CPUMesh* m_particleCPUmesh = nullptr;
+	GPUMesh* m_particleMesh = nullptr;
 	PlayerController* m_players[MAX_PLAYER_NUM];
 	std::vector<Projectile*> m_projectiles;
 };

@@ -8,15 +8,20 @@ class Entity;
 
 struct VoxelParticle
 {
-
+	void Update(float deltaSeconds); // Update 
+	Rgba GetcurColor();
 
 public:
-	Entity* owner;
-	Entity* target;
-	Vec3 pos[MAX_PARTICLE_FRAME];
+	bool isAlive = false;
+	Entity* owner = nullptr;
+	Entity* target = nullptr;
+	Vec3 pos;
+	Vec3 velocity;
 	Rgba color[MAX_PARTICLE_FRAME];
+	float framePoint = 0.5f;
 	float age = 0.f;
 	float lifeSpan = 10.f;
 	float impulseToOwnerRatio[MAX_PARTICLE_FRAME];
 	float impulseToTargetRatio[MAX_PARTICLE_FRAME];
+	float gravityRatio[MAX_PARTICLE_FRAME];
 };
