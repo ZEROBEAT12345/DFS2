@@ -84,6 +84,7 @@ private:
 
 	// Map stuffs
 	// Particles
+	float m_particleTimer = 0.f;
 	VoxelParticle particlePrototype;
 	VoxelParticle m_particles[MAX_PARTICLE_NUM];
 	int m_curEmptyParticleSlot = 0;

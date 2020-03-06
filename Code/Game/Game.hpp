@@ -58,7 +58,7 @@ private:
 	std::map<std::string, VoxelAnimDef*> m_animInfo;
 
 	// 
-	float m_gameTime = 300.f;
+	float m_gameTime = 60.f;
 	float m_deathZoneStartTime = 50.f;
 
 	// HUD
@@ -74,7 +74,7 @@ private:
 
 	// camera 
 	Vec3 m_cameraPos = Vec3::ZERO;
-	float cameraXangle = 80.f;
+	float cameraXangle = 65.f;
 	float cameraYangle = 0.f;
 	Vec3 cameraRotateSpeed;
 	float cameraMovingSpeed;

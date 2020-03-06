@@ -144,11 +144,11 @@ void Map::Initialize(std::string defFilePath)
 		nullptr,
 		nullptr,
 		Vec3::ZERO,
-		Vec3(0.f, 5.f, 0.f),
+		Vec3(0.f, 0.f, 5.f),
 		{
-			Rgba::BLUE,
-			Rgba::BLACK,
-			Rgba::GREEN
+			Rgba::RED,
+			Rgba::PINK_TAIKOH,
+			Rgba::YELLOW
 		},
 		0.5f,
 		0.f,
@@ -174,7 +174,7 @@ void Map::Update(float deltaSeconds)
 			PlayerController* player = m_players[i];
 			Projectile* p = m_projectiles[j];
 
-			if (!p)
+			if (!p || player->IsDead())
 				continue;
 
 			Disc discA = Disc(player->GetPos(), player->m_attribe.colliderSize);
@@ -217,6 +217,7 @@ void Map::Update(float deltaSeconds)
 
 	for (int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
+		if(!m_players[i]->IsDead())
 		m_players[i]->Update(deltaSeconds);
 	}
 
@@ -231,7 +232,8 @@ void Map::Update(float deltaSeconds)
 	// Update death zone
 	if(m_isDeathZoneOn)
 	{
-		m_deathZoneCurrentRatio -= deltaSeconds / m_deathZoneShrinkTime;
+		if(m_deathZoneCurrentRatio > 0.f)
+			m_deathZoneCurrentRatio -= deltaSeconds / m_deathZoneShrinkTime;
 
 		m_deathZoneDamageCounter += deltaSeconds;
 		if(m_deathZoneDamageCounter >= 1.0f)
@@ -255,12 +257,16 @@ void Map::Update(float deltaSeconds)
 	
 	// Particle
 	int randomAngle;
-
-	for(int i = 0; i < 10; i++)
+	m_particleTimer += deltaSeconds;
+	if(m_particleTimer > .5f)
 	{
-		randomAngle = g_random->GetRandomIntInRange(0, 360);
-		particlePrototype.velocity = Vec3(CosDegrees(randomAngle), 1.f, SinDegrees(randomAngle));
-		spawnParticle(particlePrototype);
+		m_particleTimer -= .5f;
+		for (int i = 0; i < 10; i++)
+		{
+			randomAngle = g_random->GetRandomIntInRange(0, 360);
+			particlePrototype.velocity = Vec3(CosDegrees(randomAngle), SinDegrees(randomAngle), 1.f);
+			spawnParticle(particlePrototype);
+		}
 	}
 
 	if (m_particleVoxels)
@@ -286,7 +292,7 @@ void Map::Update(float deltaSeconds)
 	if (m_particleCPUmesh)
 		delete m_particleCPUmesh;
 
-	m_particleCPUmesh = m_particleVoxels->GenerateMesh(3.f);
+	m_particleCPUmesh = m_particleVoxels->GenerateMesh(2.f);
 
 	if (m_particleMesh)
 		delete m_particleMesh;
@@ -301,10 +307,11 @@ void Map::Render()
 	Matrix44 terrainModelMat = Matrix44::identity;
 	terrainModelMat.SetTranslation(Vec3(0.f, (-.5f) * m_gridScale, 0.f));
 	g_theRenderer->BindModelMatrix(terrainModelMat);
-	//g_theRenderer->DrawMesh(m_terrainMesh);
+	g_theRenderer->DrawMesh(m_terrainMesh);
 
 	for (int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
+		if(!m_players[i]->IsDead())
 		m_players[i]->Render();
 	}
 
@@ -353,7 +360,7 @@ void Map::Render()
 	}
 
 	// Render particles
-	g_theRenderer->BindModelMatrix(Matrix44::identity);
+	g_theRenderer->BindModelMatrix(Matrix44::MakeTranslation3D(GetMapCenterWorld()));
 	g_theRenderer->DrawMesh(m_particleMesh);
 }
 

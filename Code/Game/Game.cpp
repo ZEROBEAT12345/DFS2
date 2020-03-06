@@ -208,7 +208,7 @@ void Game::Startup()
 	m_camera = new Camera();
 	m_camera->SetPerspectiveProjection(90.f, windowAspect, 0.1f, 1000.f);
 	m_camera->SetColorTargetView(rtv);
-	m_cameraPos = Vec3(0.f, 110.f, -30.f) + m_curMap->GetMapCenterWorld();
+	m_cameraPos = Vec3(0.f, 115.f, -90.f) + m_curMap->GetMapCenterWorld();
 
 	Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
 	m_camera->SetModelMatrix(cameraMat);

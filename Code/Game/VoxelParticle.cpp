@@ -12,7 +12,7 @@ void VoxelParticle:: Update(float deltaSeconds)
 			return;
 		}
 
-		Vec3 gravity = Vec3(0.f, -9.8f, 0.f);
+		Vec3 gravity = Vec3(0.f, 0.f, -9.8f);
 
 		float curtimeRatio = age / lifeSpan;
 		float curGravityRatio;
@@ -23,7 +23,7 @@ void VoxelParticle:: Update(float deltaSeconds)
 		}
 		else
 		{
-			float lerpRatio = curtimeRatio / framePoint;
+			float lerpRatio = (curtimeRatio - framePoint) / (1.f - framePoint);
 			curGravityRatio = Interpolation(gravityRatio[1], gravityRatio[2], lerpRatio);
 		}
 		
@@ -47,7 +47,7 @@ Rgba VoxelParticle::GetcurColor()
 	}
 	else
 	{
-		float lerpRatio = curtimeRatio / framePoint;
+		float lerpRatio = (curtimeRatio - framePoint) / (1.f - framePoint);
 		curColor = Lerp(color[1], color[2], lerpRatio);
 	}
 
