@@ -56,7 +56,7 @@ void Projectile::Update(float deltaSeconds)
 					m_appleRainCount -= 1.0f;
 
 					// Apply damage
-					m_themap->DealAOEDamage(m_pos, m_appleRainRadius, m_appleRainDamage, true);
+					m_themap->DealAOEDamage(m_pos, m_appleRainRadius, (int)m_appleRainDamage, true);
 				}
 			}
 

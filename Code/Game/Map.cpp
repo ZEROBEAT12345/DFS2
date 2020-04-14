@@ -275,7 +275,7 @@ void Map::Update(float deltaSeconds)
 		for (int i = 0; i < 10; i++)
 		{
 			randomAngle = g_random->GetRandomIntInRange(0, 360);
-			particlePrototype.velocity = Vec3(CosDegrees(randomAngle), SinDegrees(randomAngle), 1.f);
+			particlePrototype.velocity = Vec3(CosDegrees((float)randomAngle), SinDegrees((float)randomAngle), 1.f);
 			spawnParticle(particlePrototype);
 		}
 	}
