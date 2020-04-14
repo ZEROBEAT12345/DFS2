@@ -299,11 +299,11 @@ void Game::Startup()
 	}
 
 	// Initialize audio
-	m_soundList[SOUND_TYPE_MAINPLAY] = g_theAudio->CreateOrGetSound("Data/Audio/AttractMusic.mp3");
+	//m_soundList[SOUND_TYPE_MAINPLAY] = g_theAudio->CreateOrGetSound("Data/Audio/AttractMusic.mp3");
 	m_soundList[SOUND_TYPE_PLAYER_SHOOT] = g_theAudio->CreateOrGetSound("Data/Audio/PlayerShootNormal.ogg");
 	m_soundList[SOUND_TYPE_PLAYER_HIT] = g_theAudio->CreateOrGetSound("Data/Audio/PlayerHit.wav");
 
-	m_soundPlaybackList[SOUND_TYPE_MAINPLAY] = g_theAudio->PlaySound(m_soundList[SOUND_TYPE_MAINPLAY]);
+	//m_soundPlaybackList[SOUND_TYPE_MAINPLAY] = g_theAudio->PlaySound(m_soundList[SOUND_TYPE_MAINPLAY]);
 
 }
 
