@@ -18,10 +18,11 @@ public:
 	Vec3 pos;
 	Vec3 velocity;
 	Rgba color[MAX_PARTICLE_FRAME];
-	float framePoint = 0.5f;
-	float age = 0.f;
-	float lifeSpan = 10.f;
+	float framePointRatio = 0.5f;
+	float ageSeconds = 0.f;                                                                         
+	float lifeSpanSeconds = 10.f;
 	float impulseToOwnerRatio[MAX_PARTICLE_FRAME];
 	float impulseToTargetRatio[MAX_PARTICLE_FRAME];
 	float gravityRatio[MAX_PARTICLE_FRAME];
+	// add size
 };

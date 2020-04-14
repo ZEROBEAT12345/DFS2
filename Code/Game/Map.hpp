@@ -30,6 +30,7 @@ public:
 	PlayerController* PlayerA() const { return m_players[0]; }
 	PlayerController* PlayerB() const { return m_players[1]; }
 	IntVec2 GetMapGrid() const { return m_dimension; }
+	float GetGridScale() const { return m_gridScale; }
 	Vec2 GetTileCenter(IntVec2 tile) 
 	{
 		return Vec2((tile.x + .5f) * m_gridScale, (tile.y + .5f) * m_gridScale);
@@ -47,6 +48,7 @@ public:
 
 	// Collision
 	void CheckPlayerSurroundedTiles(int playerID);
+	void CheckProjectileSurroundedTiles(Projectile* p);
 
 	// Mutators
 	void GenerateTilesFromImages(std::string imageFile);
@@ -57,9 +59,13 @@ public:
 
 	// DeathZone
 	void StartDeathZone() { m_isDeathZoneOn = true; }
+	void EndDeathZone() { m_isDeathZoneOn = false; }
 
 	// Particle
 	void spawnParticle(VoxelParticle prototype);
+
+	// Gameplay
+	void DealAOEDamage(Vec2 pos, float radius, int damage, bool inSide);
 
 private:
 	// Map info

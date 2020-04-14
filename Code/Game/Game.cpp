@@ -190,10 +190,17 @@ void Game::Startup()
 	for(int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
 		PlayerController* newPlayer;
-		newPlayer = new PlayerController(i, m_curMap);
+		//if(i == 0)
+			newPlayer = new PlayerController(i, m_curMap, this, *m_playerInfo["Newton"]);
+		//else
+			//newPlayer = new PlayerController(i, m_curMap, this, *m_playerInfo["Jones"]);
+
 		newPlayer->Initialize();
 		newPlayer->AddModel("Data/Models/Ply/Newton.ply", "Data/Models/Ply/hand_Test.ply");
-		newPlayer->AddSkill(m_skillInfo["Newton_0"], SKILL_NORMAL_ATTACK);
+		newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_1], SKILL_NORMAL_ATTACK);
+		newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_2], SKILL_1);
+		//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_3], SKILL_2);
+		//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_4], SKILL_1);
 		newPlayer->AddDamagedAnim(m_animInfo["test"]);
 		newPlayer->AddAttackAnim(m_animInfo["test"]);
 		newPlayer->SetPos(m_curMap->GetPlayerStart(i));
@@ -256,6 +263,48 @@ void Game::Startup()
 	CPUMeshAddBox2D(&healthBar2, barBox2, Rgba::PINK_TAIKOH, Vec2::ZERO, Vec2::ONE);
 	m_healthBar_2 = new GPUMesh(g_theRenderer->GetCTX());
 	m_healthBar_2->CreateFromCPUMesh(&healthBar2, VERTEX_TYPE_LIGHT);
+
+	CPUMesh countMesh = CPUMesh();
+	CPUMeshAddText(&countMesh, g_testFont, Vec2(65.f, 90.f), 10.f, std::to_string(m_gameTime));
+	m_countDown = new GPUMesh(g_theRenderer->GetCTX());
+	m_countDown->CreateFromCPUMesh(&countMesh, VERTEX_TYPE_LIGHT);
+
+	for(int i = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		float padding = 135.f;
+
+		CPUMesh headerMesh = CPUMesh();
+		CPUMeshAddBox2D(&headerMesh, AABB2(Vec2(0.f + i * padding, 75.f), Vec2(15.f + i * padding, 90.f)), Rgba::WHITE, Vec2(0.f, 0.f), Vec2(1.f, 1.f));
+
+		CPUMesh skillMesh1 = CPUMesh();
+		CPUMeshAddBox2D(&skillMesh1, AABB2(Vec2(0.f + i * padding, 70.f), Vec2(5.f + i * padding, 75.f)), Rgba::WHITE, Vec2(0.f, 0.f), Vec2(1.f, 1.f));
+
+		CPUMesh skillMesh2 = CPUMesh();
+		CPUMeshAddBox2D(&skillMesh2, AABB2(Vec2(5.f + i * padding, 70.f), Vec2(10.f + i * padding, 75.f)), Rgba::WHITE, Vec2(0.f, 0.f), Vec2(1.f, 1.f));
+
+		CPUMesh skillMesh3 = CPUMesh();
+		CPUMeshAddBox2D(&skillMesh3, AABB2(Vec2(10.f + i * padding, 70.f), Vec2(15.f + i * padding, 75.f)), Rgba::WHITE, Vec2(0.f, 0.f), Vec2(1.f, 1.f));
+
+		m_playerHeader[i] = new GPUMesh(g_theRenderer->GetCTX());
+		m_playerHeader[i]->CreateFromCPUMesh(&headerMesh, VERTEX_TYPE_LIGHT);
+
+		m_skill1[i] = new GPUMesh(g_theRenderer->GetCTX());
+		m_skill1[i]->CreateFromCPUMesh(&skillMesh1, VERTEX_TYPE_LIGHT);
+
+		m_skill2[i] = new GPUMesh(g_theRenderer->GetCTX());
+		m_skill2[i]->CreateFromCPUMesh(&skillMesh2, VERTEX_TYPE_LIGHT);
+
+		m_skill3[i] = new GPUMesh(g_theRenderer->GetCTX());
+		m_skill3[i]->CreateFromCPUMesh(&skillMesh3, VERTEX_TYPE_LIGHT);
+	}
+
+	// Initialize audio
+	m_soundList[SOUND_TYPE_MAINPLAY] = g_theAudio->CreateOrGetSound("Data/Audio/AttractMusic.mp3");
+	m_soundList[SOUND_TYPE_PLAYER_SHOOT] = g_theAudio->CreateOrGetSound("Data/Audio/PlayerShootNormal.ogg");
+	m_soundList[SOUND_TYPE_PLAYER_HIT] = g_theAudio->CreateOrGetSound("Data/Audio/PlayerHit.wav");
+
+	m_soundPlaybackList[SOUND_TYPE_MAINPLAY] = g_theAudio->PlaySound(m_soundList[SOUND_TYPE_MAINPLAY]);
+
 }
 
 void Game::Shutdown()
@@ -286,6 +335,25 @@ void Game::Shutdown()
 
 	delete m_healthBar_2;
 	m_healthBar_2 = nullptr;
+
+	delete m_countDown;
+	m_countDown = nullptr;
+
+	for(int i = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		if (m_skill1[i])
+			delete m_skill1[i];
+
+		if (m_skill2[i])
+			delete m_skill2[i];
+
+		if (m_skill3[i])
+			delete m_skill3[i];
+
+		if (m_playerHeader[i])
+			delete m_playerHeader[i];
+	}
+
 }
 
 void Game::Update(float deltaSeconds)
@@ -366,7 +434,16 @@ void Game::Update(float deltaSeconds)
 	{
 		m_curMap->StartDeathZone();
 	}
-	DebugRenderMessage(.0F, Rgba::PINK_IKKONZOME, Rgba::PINK_IKKONZOME, "Countdown: %f", m_gameTime);
+	//DebugRenderMessage(.0F, Rgba::PINK_IKKONZOME, Rgba::PINK_IKKONZOME, "Countdown: %f", m_gameTime);
+	CPUMesh countMesh = CPUMesh();
+	if(m_gameTime >= 30.f)
+		CPUMeshAddText(&countMesh, g_testFont, Vec2(65.f, 90.f), 10.f, std::to_string((int)m_gameTime));
+	else
+		CPUMeshAddText(&countMesh, g_testFont, Vec2(65.f, 90.f), 10.f, std::to_string((int)m_gameTime), Rgba::RED);
+	delete m_countDown;
+	m_countDown = new GPUMesh(g_theRenderer->GetCTX());
+	m_countDown->CreateFromCPUMesh(&countMesh, VERTEX_TYPE_LIGHT);
+
 }
 
 void Game::Render()
@@ -394,6 +471,19 @@ void Game::Render()
 	g_theRenderer->DrawMesh(m_healthBarSlot_2);
 	g_theRenderer->DrawMesh(m_healthBar);
 	g_theRenderer->DrawMesh(m_healthBar_2);
+
+	for(int i = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/gameplay/newton.png"), g_assetLoader->CreateOrGetSampler("point"));
+
+		g_theRenderer->DrawMesh(m_skill1[i]);
+		g_theRenderer->DrawMesh(m_skill2[i]);
+		g_theRenderer->DrawMesh(m_skill3[i]);
+		g_theRenderer->DrawMesh(m_playerHeader[i]);
+	}
+
+	g_theRenderer->BindTextureViewWithSampler(0, g_testFont->GetTexture(), g_assetLoader->CreateOrGetSampler("point"));
+	g_theRenderer->DrawMesh(m_countDown);
 
 	DebugRenderScreen();
 }
@@ -452,6 +542,7 @@ void Game::HandleKeyPressed(unsigned char KeyCode)
 		g_theRenderer->SetPointLightNum(4);
 		break;
 	case KEY_F1:
+		//m_curMap->EndDeathZone();
 		break;
 	default:
 		break;
@@ -494,12 +585,29 @@ void Game::LoadResources()
 	ProjectileDef* apple = new ProjectileDef();
 	m_projectileInfo["Apple"] = apple;
 
+	ProjectileDef* appleRain = new ProjectileDef();
+	appleRain->size = 2.f;
+	m_projectileInfo["AppleRain"] = appleRain;
+
 	// Load Skill Definition
 	SkillDefinition* appleAttack = new SkillDefinition(apple);
+	appleAttack->SetSkillType(SKILL_NEWTON_NORMAL_ATTACK);
 	m_skillInfo["Newton_0"] = appleAttack;
 
+	SkillDefinition* appleSkill = new SkillDefinition(appleRain);
+	appleSkill->SetSkillType(SKILL_NEWTON_SKILL_1);
+	m_skillInfo["Newton_1"] = appleSkill;
+
 	// Load Player Attrib
-                                                                                                                                  	// TBDs
+	PlayerAttrib* newton = new PlayerAttrib();
+	newton->SkillID_1 = "Newton_0";
+	newton->SkillID_2 = "Newton_1";
+	m_playerInfo["Newton"] = newton;
+
+	PlayerAttrib* jones = new PlayerAttrib();
+	m_playerInfo["Jones"] = jones;
+	
+	// TBDs
 
 	// Load voxel animation definition
 	VoxelAnimDef* newAnim = new VoxelAnimDef();

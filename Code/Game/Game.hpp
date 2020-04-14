@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Math/Vec3.hpp"
+#include "Engine/Audio/AudioSystem.hpp"
 #include <map>
 
 struct Camera;
@@ -19,6 +20,18 @@ struct PlayerAttrib;
 class VoxelAnimDef;
 
 #define MAX_PLAYER_NUM 2
+
+enum SoundType
+{
+	SOUND_TYPE_INVALID = -1,
+	SOUND_TYPE_ATTRACT,
+	SOUND_TYPE_MAINPLAY,
+	SOUND_TYPE_PAUSE,
+	SOUND_TYPE_PLAYER_SHOOT,
+	SOUND_TYPE_PLAYER_HIT,
+	SOUND_TYPE_PLAYER_DIE,
+	NUM_SOUND_TYPE
+};
 
 class Game
 {
@@ -41,6 +54,10 @@ public:
 	void AdjustAmbient(float deltaTime);
 	void SetAmbientChangeAmount(float amount);
 
+	// Audio
+	SoundID m_soundList[NUM_SOUND_TYPE];
+	SoundPlaybackID m_soundPlaybackList[NUM_SOUND_TYPE];
+
 private:
 	Camera* m_camera;
 	Camera* m_HUDCamera;
@@ -58,7 +75,7 @@ private:
 	std::map<std::string, VoxelAnimDef*> m_animInfo;
 
 	// 
-	float m_gameTime = 60.f;
+	float m_gameTime = 100.f;
 	float m_deathZoneStartTime = 50.f;
 
 	// HUD
@@ -68,6 +85,12 @@ private:
 	GPUMesh* m_healthBarSlot_2;
 	GPUMesh* m_healthBar;
 	GPUMesh* m_healthBar_2;
+	GPUMesh* m_countDown;
+
+	GPUMesh* m_skill1[MAX_PLAYER_NUM];
+	GPUMesh* m_skill2[MAX_PLAYER_NUM];
+	GPUMesh* m_skill3[MAX_PLAYER_NUM];
+	GPUMesh* m_playerHeader[MAX_PLAYER_NUM];
 
 	// Test mesh
 	VoxelMesh* m_charVoxel[4]; 

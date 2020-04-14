@@ -9,12 +9,14 @@
 #include "Game/VoxelMesh.hpp"
 #include "Game/SkillDefinition.hpp"
 #include "Game/Map.hpp"
+#include "Game/Game.hpp"
 #include "Game/VoxelAnimator.hpp"
 #include "Game/VoxelAnimDef.hpp"
 
 extern ImmediateRenderer* g_theRenderer;
 extern InputSystem* g_theInputSystem; 
 extern PhysicsSystem* g_thePhysicSystem;
+extern AudioSystem* g_theAudio;
 using namespace DebugRender;
 
 PlayerController::~PlayerController()
@@ -56,7 +58,7 @@ void PlayerController::Render() const
 		Matrix44 animMat = Matrix44::MakeRotationForEulerZXY(curFrame.rotation, curFrame.pos);
 
 		lefHandMat = lefHandMat * animMat;
-		rightHandMat = rightHandMat * animMat;
+		//rightHandMat = rightHandMat * animMat;
 	}
 
 	g_theRenderer->BindModelMatrix(characterMat * lefHandMat);
@@ -123,6 +125,12 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 	{
 		UseSkill(SKILL_NORMAL_ATTACK);
 	}
+
+	KeyButtonState Ystate = controller.GetButtonState(XBOX_BUTTON_ID_Y);
+	if (Ystate.WasJustPressed())
+	{
+		UseSkill(SKILL_1);
+	}
 }
 
 // Gameplay
@@ -130,12 +138,17 @@ void PlayerController::UseSkill(int skillID)
 {
 	m_skills[skillID]->Cast(this, m_curMap); 
 	m_bodyAnimator->PlayAnimation(m_attackAnim);
+	m_game->m_soundPlaybackList[SOUND_TYPE_PLAYER_SHOOT] = g_theAudio->PlaySound(m_game->m_soundList[SOUND_TYPE_PLAYER_SHOOT]);
 }
 
 void PlayerController::GetDamage(int damage)
 {
+	if (m_isDead)                            
+		return;
+
 	m_curHealth -= damage;
-	
+	m_game->m_soundPlaybackList[SOUND_TYPE_PLAYER_HIT] = g_theAudio->PlaySound(m_game->m_soundList[SOUND_TYPE_PLAYER_HIT]);
+
 	if(m_curHealth <= 0)
 	{
 		m_curHealth = 0;

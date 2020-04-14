@@ -11,6 +11,7 @@ class SkillDefinition;
 class VoxelAnimator;
 class VoxelAnimDef;
 class Rigidbody2D;
+class Game;
 
 enum SkillID
 {
@@ -24,14 +25,14 @@ enum SkillID
 struct PlayerAttrib
 {
 	int maxHealth = 100;
-	float movingSpeed = 15.f;
+	float movingSpeed = 20.f;
 	int attack;
 	int armor;
 	float colliderSize = 5.f;
 	std::string SkillID_1;
-	int SkillID_2;
-	int SkillID_3;
-	int SkillID_4;
+	std::string SkillID_2;
+	std::string SkillID_3;
+	std::string SkillID_4;
 }; 
 
 class PlayerController: public Entity
@@ -40,7 +41,7 @@ class PlayerController: public Entity
 	friend Map;
 
 public:
-	PlayerController(int controllerID, Map* map) : m_controllerID(controllerID), m_curMap(map) {}
+	PlayerController(int controllerID, Map* map, Game* game, PlayerAttrib attrib) : m_controllerID(controllerID), m_curMap(map), m_game(game), m_attribe(attrib) {}
 	~PlayerController();
 
 	void BeginFrame();
@@ -90,6 +91,7 @@ private:
 	
 	int m_controllerID = -1;
 	Map* m_curMap = nullptr;
+	Game* m_game = nullptr;
 
 	VoxelAnimator* m_bodyAnimator = nullptr;
 	VoxelAnimator* m_handAnimator = nullptr;

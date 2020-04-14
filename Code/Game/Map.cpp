@@ -215,6 +215,15 @@ void Map::Update(float deltaSeconds)
 	CheckPlayerSurroundedTiles(0);
 	CheckPlayerSurroundedTiles(1);
 
+	// Handled Collision For projectiles and players
+	for (Projectile* p : m_projectiles)
+	{
+		if (!p || p->m_isDead)
+			continue;
+
+		CheckProjectileSurroundedTiles(p);
+	}
+
 	for (int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
 		if(!m_players[i]->IsDead())
@@ -242,8 +251,10 @@ void Map::Update(float deltaSeconds)
 
 			// Deal Damage
 			Vec3 mapCenterWorld = GetMapCenterWorld();
-			Disc deathZoneDisc = Disc(Vec2(mapCenterWorld.x, mapCenterWorld.z), m_dimension.x * m_gridScale / 2.f * m_deathZoneCurrentRatio);
-			
+			DealAOEDamage(Vec2(mapCenterWorld.x, mapCenterWorld.z), m_dimension.x * m_gridScale / 2.f * m_deathZoneCurrentRatio, m_deathZoneDamage, false);
+
+			/*Disc deathZoneDisc = Disc(Vec2(mapCenterWorld.x, mapCenterWorld.z), m_dimension.x * m_gridScale / 2.f * m_deathZoneCurrentRatio);
+
 			for(int i = 0; i < MAX_PLAYER_NUM; i++)
 			{
 				Disc playerDisc = Disc(m_players[i]->m_pos, m_players[i]->m_attribe.colliderSize);
@@ -251,7 +262,7 @@ void Map::Update(float deltaSeconds)
 				{
 					m_players[i]->GetDamage(m_deathZoneDamage);
 				}
-			}
+			}*/
 		}
 	}
 	
@@ -361,7 +372,7 @@ void Map::Render()
 
 	// Render particles
 	g_theRenderer->BindModelMatrix(Matrix44::MakeTranslation3D(GetMapCenterWorld()));
-	g_theRenderer->DrawMesh(m_particleMesh);
+	//g_theRenderer->DrawMesh(m_particleMesh);
 }
 
 void Map::DeleteGarbageEntities()
@@ -449,6 +460,76 @@ void Map::CheckPlayerSurroundedTiles(int playerID)
 					if (GetManifoldForAABB2WithDisc(m, tileBox, disc))
 					{
 						m_players[playerID]->m_pos -= m->normal * m->penetration;
+					}
+				}
+
+			}
+
+			curX += dx;
+			curY += dy;
+		}
+	}
+}
+
+void Map::CheckProjectileSurroundedTiles(Projectile* p)
+{
+	// Only check surrounded tiles for player
+	int x = (int)floor(p->m_pos.x / m_gridScale + 0.5f);
+	int y = (int)floor(p->m_pos.y / m_gridScale + 0.5f);
+	int curX = x;
+	int curY = y;
+	int dx = 1;
+	int dy = 1;
+
+	int tileRangeA = (int)floor(p->m_def->collisionRadius / m_gridScale) + 1;
+	for (int r = 0; r <= tileRangeA; r++)
+	{
+		curX = 0 + x;
+		curY = r + y;
+		dx = 1;
+		dy = 1;
+
+		for (int i = 0; i < 4 * r; i++)
+		{
+			if (curX - x == 0 || curY - y == 0)
+			{
+				if (dx == 1 && dy == -1)
+				{
+					dx = -1;
+					dy = -1;
+				}
+				else if (dx == -1 && dy == -1)
+				{
+					dx = -1;
+					dy = 1;
+				}
+				else if (dx == -1 && dy == 1)
+				{
+					dx = 1;
+					dy = 1;
+				}
+				else if (dx == 1 && dy == 1)
+				{
+					dx = 1;
+					dy = -1;
+				}
+			}
+
+			// Resolve Collision for each tile
+			if (curX >= 0 && curX < m_dimension.x && curY >= 0 && curY < m_dimension.y)
+			{
+				int idx = GetIndexFromTile(IntVec2(curX, curY));
+				if (m_collisionTile[idx])
+				{
+					Vec2 bottomLeft = Vec2(curX * m_gridScale, curY * m_gridScale) - Vec2(m_gridScale, m_gridScale) * .5f;
+					Vec2 topRight = bottomLeft + Vec2(m_gridScale, m_gridScale);
+					AABB2 tileBox = AABB2(bottomLeft, topRight);
+					Disc disc = Disc(p->m_pos, p->m_def->collisionRadius);
+
+					Manifold2D* m = new Manifold2D();
+					if (GetManifoldForAABB2WithDisc(m, tileBox, disc))
+					{
+						p->OnHit();
 					}
 				}
 
@@ -555,6 +636,27 @@ void Map::spawnParticle(VoxelParticle prototype)
 			m_particles[i].isAlive = true;
 			m_curEmptyParticleSlot = i;
 			return;
+		}
+	}
+}
+
+void Map::DealAOEDamage(Vec2 pos, float radius, int damage, bool inSide)
+{
+	// Deal Damage
+	Disc disc = Disc(pos, radius);
+
+	for (int i = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		Disc playerDisc = Disc(m_players[i]->m_pos, m_players[i]->m_attribe.colliderSize);
+		if (DoDiscsOverlap(disc, playerDisc))
+		{
+			if(inSide)
+				m_players[i]->GetDamage(damage);
+		}
+		else
+		{
+			if(!inSide)
+				m_players[i]->GetDamage(damage);
 		}
 	}
 }
