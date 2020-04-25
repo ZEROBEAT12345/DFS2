@@ -226,6 +226,7 @@ void Projectile::OnHit()
 	case PROJECTILE_JONES_NORMAL_ATTACK:
 		break;
 	case PROJECTILE_JONES_SKILL_1:
+		Die();
 		break;
 	case PROJECTILE_JONES_SKILL_2:
 		break;
