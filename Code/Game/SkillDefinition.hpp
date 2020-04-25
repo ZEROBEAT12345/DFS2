@@ -24,7 +24,7 @@ public:
 	void SetSkillType(SkillType type) { m_skillType = type; }
 	void Cast(PlayerController* player, Map* curMap);
 
-private:
+public:
 	SkillType m_skillType = SKILL_NEWTON_NORMAL_ATTACK;
 	ProjectileDef* m_pDef;
 	float cooldown = 3.f;

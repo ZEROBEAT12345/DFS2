@@ -58,6 +58,8 @@ public:
 	SoundID m_soundList[NUM_SOUND_TYPE];
 	SoundPlaybackID m_soundPlaybackList[NUM_SOUND_TYPE];
 
+	std::map<std::string, VoxelMesh*> m_voxelLib;
+
 private:
 	Camera* m_camera;
 	Camera* m_HUDCamera;
@@ -69,13 +71,14 @@ private:
 
 	// Gameplay
 	Map* m_curMap;
+	
 	std::map<std::string, PlayerAttrib*> m_playerInfo;
 	std::map<std::string, ProjectileDef*> m_projectileInfo;
 	std::map<std::string, SkillDefinition*> m_skillInfo;
 	std::map<std::string, VoxelAnimDef*> m_animInfo;
 
 	// 
-	float m_gameTime = 100.f;
+	float m_gameTime = 300.f;
 	float m_deathZoneStartTime = 50.f;
 
 	// HUD
@@ -88,8 +91,11 @@ private:
 	GPUMesh* m_countDown;
 
 	GPUMesh* m_skill1[MAX_PLAYER_NUM];
+	GPUMesh* m_skill1CoolDown[MAX_PLAYER_NUM];
 	GPUMesh* m_skill2[MAX_PLAYER_NUM];
+	GPUMesh* m_skill2CoolDown[MAX_PLAYER_NUM];
 	GPUMesh* m_skill3[MAX_PLAYER_NUM];
+	GPUMesh* m_skill3CoolDown[MAX_PLAYER_NUM];
 	GPUMesh* m_playerHeader[MAX_PLAYER_NUM];
 
 	// Test mesh

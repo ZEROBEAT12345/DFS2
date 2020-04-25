@@ -13,6 +13,16 @@ void VoxelMesh::AddVoxel(const VoxelGrid& voxel)
 	m_voxels.push_back(voxel);
 }
 
+void VoxelMesh::MergeVoxelMesh(const VoxelMesh* src, Matrix44 transform)
+{
+	for (VoxelGrid v : src->m_voxels)
+	{
+		Vec4 newPos = transform * Vec4(v.pos, 1.f);
+		v.pos = Vec3(newPos.x, newPos.y, newPos.z);
+		AddVoxel(v);
+	}
+}
+
 void VoxelMesh::LoadFromFiles(std::string filepath)
 {
 	std::ifstream objFile;

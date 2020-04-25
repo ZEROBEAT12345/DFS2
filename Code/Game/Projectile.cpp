@@ -1,10 +1,12 @@
 #include "Engine/Render/AssetLoader.hpp"
 #include "Engine/Render/ImmediateRenderer.hpp"
 #include "Engine/Math/Matrix44.hpp"
+#include "Engine/Math/Algorithms/MathUtils.hpp"
 #include "Engine/Physics/PhysicsSystem.hpp"
 #include "Game/Projectile.hpp"
 #include "Game/ProjectileDef.hpp"
 #include "Game/Map.hpp"
+#include "Game/PlayerController.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
 extern AssetLoader* g_assetLoader;
@@ -78,8 +80,49 @@ void Projectile::Update(float deltaSeconds)
 	case PROJECTILE_NEWTON_SKILL_2:
 		break;
 	case PROJECTILE_JONES_NORMAL_ATTACK:
+		// life update
+		m_lifespan += deltaSeconds;
+		if (m_lifespan > m_def->existTime)
+		{
+			Die();
+		}
+
+		DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_def->velocity);
+		m_pos += DeltaPosition;
 		break;
 	case PROJECTILE_JONES_SKILL_1:
+		if(m_isRopeFlying)
+		{
+			// update rope head
+			m_lifespan += deltaSeconds;
+			if (m_lifespan > m_def->existTime)
+			{
+				Die();
+			}
+
+			DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_def->velocity);
+			m_pos += DeltaPosition;
+		}
+		else
+		{
+			// Drag It back
+			DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_def->velocity);
+			m_pos += DeltaPosition;
+			m_target->Translate(DeltaPosition);
+
+			// stop dragging if reach the player
+
+			PlayerController* player = m_playerID == 0 ? m_themap->PlayerA() : m_themap->PlayerB();
+			float dist = (player->GetPos() - m_target->GetPos()).GetLength();
+			if(dist <= m_minDist)
+			{
+				// Stop Dragging
+				player->SetFreezeInput(false);
+				m_target->SetFreezeInput(false);
+
+				Die();
+			}
+		}
 		break;
 	case PROJECTILE_JONES_SKILL_2:
 		break;
@@ -137,6 +180,11 @@ void Projectile::Render()
 	case PROJECTILE_JONES_NORMAL_ATTACK:
 		break;
 	case PROJECTILE_JONES_SKILL_1:
+		curMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
+		curMat.SetTranslation(Vec3(m_pos.x, m_height, m_pos.y));
+		curMat = curMat * Matrix44::MakeUniformScale3D(m_def->size);
+		g_theRenderer->BindModelMatrix(curMat);
+		g_theRenderer->DrawMesh(m_mesh);
 		break;
 	case PROJECTILE_JONES_SKILL_2:
 		break;
@@ -187,4 +235,44 @@ void Projectile::OnHit()
 		break;
 	}
 
+}
+
+void Projectile::OnOverlapWithPlayer(PlayerController* target)
+{
+	PlayerController* player = nullptr;
+	player = m_playerID == 0 ? m_themap->PlayerA() : m_themap->PlayerB();
+
+	switch (m_pid)
+	{
+	case PROJECTILE_NEWTON_NORMAL_ATTACK:
+		target->GetDamage((int)m_def->damageCoef);
+		Die();
+		break;
+	case PROJECTILE_NEWTON_SKILL_1:
+		
+		break;
+	case PROJECTILE_NEWTON_SKILL_2:
+		break;
+	case PROJECTILE_JONES_NORMAL_ATTACK:
+		break;
+	case PROJECTILE_JONES_SKILL_1:
+		// Start dragging
+		if(m_isRopeFlying)
+		{
+			m_isRopeFlying = false;
+
+			m_forwardAngle = m_forwardAngle + 180.f;
+			m_target = target;
+			player->SetFreezeInput(true);
+			m_target->SetFreezeInput(true);
+		}
+		
+		break;
+	case PROJECTILE_JONES_SKILL_2:
+		break;
+	case PROJECTILE_TYPE_NUM:
+		break;
+	default:
+		break;
+	}
 }

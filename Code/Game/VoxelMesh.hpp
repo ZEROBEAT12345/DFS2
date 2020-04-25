@@ -21,6 +21,7 @@ public:
 
 	void AddVoxel(const Vec3& pos, const Rgba& color);
 	void AddVoxel(const VoxelGrid& voxel);
+	void MergeVoxelMesh(const VoxelMesh* src, Matrix44 transform = Matrix44::identity);
 	void LoadFromFiles(std::string filepath);
 	CPUMesh* GenerateMesh(float gridSize = 1.f);
 

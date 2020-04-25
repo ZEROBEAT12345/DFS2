@@ -8,6 +8,7 @@
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/Algorithms/RandomNumberGenerator.hpp"
 #include "Game/Map.hpp"
+#include "Game/Game.hpp"
 #include "Game/Projectile.hpp"
 #include "Game/ProjectileDef.hpp"
 #include "Game/PlayerController.hpp"
@@ -155,12 +156,14 @@ void Map::Initialize(std::string defFilePath)
 		10.f,
 		{0.f,0.f,0.f},
 		{0.f,0.f,0.f},
-		{0.f,0.f,0.f}
+		{0.f,0.f,0.f},
+		m_theGame->m_voxelLib["Apple"]
 	};
 
 	for(int i= 0; i < MAX_PARTICLE_NUM; i++)
 	{
 		m_particles[i] = VoxelParticle();
+		//m_particles[i].AddMesh(m_theGame->m_voxelLib["Apple"]);
 	}
 }
 
@@ -192,9 +195,10 @@ void Map::Update(float deltaSeconds)
 
 			if(DoDiscsOverlap(discA, discB))
 			{
-				int damage = (int)p->m_def->damageCoef;
-				player->GetDamage(damage);
-				p->Die();
+				p->OnOverlapWithPlayer(player);
+				//int damage = (int)p->m_def->damageCoef;
+				//player->GetDamage(damage);
+				//p->Die();
 
 				DebugRenderMessage(3.f, Rgba::PINK_IKKONZOME, Rgba::PINK_IKKONZOME, "Bullet hit!!!");
 			}
@@ -215,7 +219,7 @@ void Map::Update(float deltaSeconds)
 	CheckPlayerSurroundedTiles(0);
 	CheckPlayerSurroundedTiles(1);
 
-	// Handled Collision For projectiles and players
+	// Handled Collision For projectiles and tiles
 	for (Projectile* p : m_projectiles)
 	{
 		if (!p || p->m_isDead)
@@ -276,7 +280,7 @@ void Map::Update(float deltaSeconds)
 		{
 			randomAngle = g_random->GetRandomIntInRange(0, 360);
 			particlePrototype.velocity = Vec3(CosDegrees((float)randomAngle), SinDegrees((float)randomAngle), 1.f);
-			spawnParticle(particlePrototype);
+			//spawnParticle(particlePrototype);
 		}
 	}
 
@@ -291,12 +295,21 @@ void Map::Update(float deltaSeconds)
 		{
 			m_particles[i].Update(deltaSeconds);
 
-			VoxelGrid voxel =
+			if(m_particles[i].replaceMesh)
 			{
-				m_particles[i].pos,
-				m_particles[i].GetcurColor()
-			};
-			m_particleVoxels->AddVoxel(voxel);
+				Matrix44 newTrans = Matrix44::MakeTranslation3D(m_particles[i].pos);
+				m_particleVoxels->MergeVoxelMesh(m_particles[i].replaceMesh, newTrans);
+			}
+			else
+			{
+				VoxelGrid voxel =
+				{
+					m_particles[i].pos,
+					m_particles[i].GetcurColor()
+				};
+				m_particleVoxels->AddVoxel(voxel);
+			}
+
 		}	
 	}
 
@@ -309,7 +322,8 @@ void Map::Update(float deltaSeconds)
 		delete m_particleMesh;
 
 	m_particleMesh = new GPUMesh(g_theRenderer->GetCTX());
-	m_particleMesh->CreateFromCPUMesh(m_particleCPUmesh, VERTEX_TYPE_LIGHT);
+	if(!m_particleCPUmesh->IsEmpty())
+		m_particleMesh->CreateFromCPUMesh(m_particleCPUmesh, VERTEX_TYPE_LIGHT);
 }
 
 void Map::Render()
@@ -372,7 +386,7 @@ void Map::Render()
 
 	// Render particles
 	g_theRenderer->BindModelMatrix(Matrix44::MakeTranslation3D(GetMapCenterWorld()));
-	//g_theRenderer->DrawMesh(m_particleMesh);
+	// g_theRenderer->DrawMesh(m_particleMesh);
 }
 
 void Map::DeleteGarbageEntities()
@@ -399,6 +413,11 @@ IntVec2 Map::GetTileFromIndex(int idx)
 	int y = idx / m_dimension.x;
 
 	return IntVec2(x, y);
+}
+
+float Map::GetPlayerCooldown(int playerID, int skillID) 
+{ 
+	return m_players[playerID]->m_skillCoolDown[skillID]; 
 }
 
 void Map::CheckPlayerSurroundedTiles(int playerID)

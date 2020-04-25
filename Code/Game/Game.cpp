@@ -179,32 +179,46 @@ void Game::Startup()
 	CPUMesh* appleMesh = appleVoxel->GenerateMesh(0.5f);
 	aMesh->CreateFromCPUMesh(appleMesh, VERTEX_TYPE_LIGHT);
 	g_assetLoader->RegisterMesh("Apple", aMesh);
+	m_voxelLib["Apple"] = appleVoxel;
 
 	LoadResources();
 
 	// Initialize Map
-	m_curMap = new Map();
+	m_curMap = new Map(this);
 	m_curMap->Initialize("Data/Gameplay/Map/grassland.map");
 
 	// Initialize Player
 	for(int i = 0; i < MAX_PLAYER_NUM; i++)
 	{
 		PlayerController* newPlayer;
-		//if(i == 0)
+		if (i == 0)
+		{
 			newPlayer = new PlayerController(i, m_curMap, this, *m_playerInfo["Newton"]);
-		//else
-			//newPlayer = new PlayerController(i, m_curMap, this, *m_playerInfo["Jones"]);
-
-		newPlayer->Initialize();
-		newPlayer->AddModel("Data/Models/Ply/Newton.ply", "Data/Models/Ply/hand_Test.ply");
-		newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_1], SKILL_NORMAL_ATTACK);
-		newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_2], SKILL_1);
-		//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_3], SKILL_2);
-		//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_4], SKILL_1);
-		newPlayer->AddDamagedAnim(m_animInfo["test"]);
-		newPlayer->AddAttackAnim(m_animInfo["test"]);
-		newPlayer->SetPos(m_curMap->GetPlayerStart(i));
-		m_curMap->SetPlayer(i, newPlayer);
+			newPlayer->Initialize();
+			newPlayer->AddModel("Data/Models/Ply/Newton.ply", "Data/Models/Ply/hand_Test.ply");
+			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_1], SKILL_NORMAL_ATTACK);
+			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_2], SKILL_1);
+			//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_3], SKILL_2);
+			//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_4], SKILL_1);
+			newPlayer->AddDamagedAnim(m_animInfo["test"]);
+			newPlayer->AddAttackAnim(m_animInfo["test"]);
+			newPlayer->SetPos(m_curMap->GetPlayerStart(i));
+			m_curMap->SetPlayer(i, newPlayer);
+		}
+		else
+		{
+			newPlayer = new PlayerController(i, m_curMap, this, *m_playerInfo["Jones"]);
+			newPlayer->Initialize();
+			newPlayer->AddModel("Data/Models/Ply/Jones.ply", "Data/Models/Ply/hand_Test.ply");
+			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_1], SKILL_NORMAL_ATTACK);
+			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_2], SKILL_1);
+			//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_3], SKILL_2);
+			//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_4], SKILL_1);
+			newPlayer->AddDamagedAnim(m_animInfo["test"]);
+			newPlayer->AddAttackAnim(m_animInfo["test"]);
+			newPlayer->SetPos(m_curMap->GetPlayerStart(i));
+			m_curMap->SetPlayer(i, newPlayer);
+		}
 	}
 
 	// Initialize camera config
@@ -296,6 +310,10 @@ void Game::Startup()
 
 		m_skill3[i] = new GPUMesh(g_theRenderer->GetCTX());
 		m_skill3[i]->CreateFromCPUMesh(&skillMesh3, VERTEX_TYPE_LIGHT);
+
+		m_skill1CoolDown[i] = nullptr;
+		m_skill2CoolDown[i] = nullptr;
+		m_skill3CoolDown[i] = nullptr;
 	}
 
 	// Initialize audio
@@ -352,6 +370,9 @@ void Game::Shutdown()
 
 		if (m_playerHeader[i])
 			delete m_playerHeader[i];
+
+		if (m_skill1CoolDown[i])
+			delete m_skill1CoolDown[i];
 	}
 
 }
@@ -379,7 +400,6 @@ void Game::Update(float deltaSeconds)
 		Vec4 cameraWorldTrans = cameraRotateMat * Vec4(cameraLocalTrans.x, cameraLocalTrans.y, cameraLocalTrans.z, 0.f);
 		m_cameraPos += Vec3(cameraWorldTrans.x, cameraWorldTrans.y, cameraWorldTrans.z);
 
-
 		IntVec2 mouseTrans = g_theWindow->GetClientMouseRelativePositon();
 		float Yangle = mouseTrans.x / 10.f;
 		float Xangle = mouseTrans.y / 10.f;
@@ -397,8 +417,6 @@ void Game::Update(float deltaSeconds)
 
 	// Update garbage entities
 	DeleteGarbageEntities();
-
-	
 
 	// Change direction light
 	xzAngle += deltaSeconds * 30.f;
@@ -427,6 +445,38 @@ void Game::Update(float deltaSeconds)
 	delete m_healthBar_2;
 	m_healthBar_2 = new GPUMesh(g_theRenderer->GetCTX());
 	m_healthBar_2->CreateFromCPUMesh(&healthBar2, VERTEX_TYPE_LIGHT);
+
+	for(int i  = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		float skill1Cooldown = m_curMap->GetPlayerCooldown(i, 1);
+		float skill2Cooldown = m_curMap->GetPlayerCooldown(i, 2);
+		float padding = 135.f;
+
+		if(skill1Cooldown > 0.f)
+		{
+			CPUMesh coolDown1;
+			CPUMeshAddText(&coolDown1, g_testFont, Vec2(2.f + i * padding, 72.f), 3.f, std::to_string((int)skill1Cooldown + 1), Rgba::BLACK);
+
+			if (m_skill1CoolDown[i])
+				delete m_skill1CoolDown[i];
+
+			m_skill1CoolDown[i] = new GPUMesh(g_theRenderer->GetCTX());
+			m_skill1CoolDown[i]->CreateFromCPUMesh(&coolDown1, VERTEX_TYPE_LIGHT);
+		}
+
+		if (skill2Cooldown > 0.f)
+		{
+			CPUMesh coolDown2;
+			CPUMeshAddText(&coolDown2, g_testFont, Vec2(7.f + i * padding, 80.f), 3.f, std::to_string((int)skill2Cooldown + 1), Rgba::BLACK);
+
+			if (m_skill2CoolDown[i])
+				delete m_skill2CoolDown[i];
+
+			m_skill2CoolDown[i] = new GPUMesh(g_theRenderer->GetCTX());
+			m_skill2CoolDown[i]->CreateFromCPUMesh(&coolDown2, VERTEX_TYPE_LIGHT);
+		}
+	}
+	GPUMesh* m_skill1CoolDown[MAX_PLAYER_NUM];
 
 	// Update game time
 	m_gameTime -= deltaSeconds;
@@ -480,9 +530,25 @@ void Game::Render()
 		g_theRenderer->DrawMesh(m_skill2[i]);
 		g_theRenderer->DrawMesh(m_skill3[i]);
 		g_theRenderer->DrawMesh(m_playerHeader[i]);
+
 	}
 
 	g_theRenderer->BindTextureViewWithSampler(0, g_testFont->GetTexture(), g_assetLoader->CreateOrGetSampler("point"));
+	
+	for (int i = 0; i < MAX_PLAYER_NUM; i++)
+	{
+		float skill1Cooldown = m_curMap->GetPlayerCooldown(i, 1);
+		float skill2Cooldown = m_curMap->GetPlayerCooldown(i, 2);
+		if (skill1Cooldown > 0.f)
+		{
+			g_theRenderer->DrawMesh(m_skill1CoolDown[i]);
+		}
+
+		if (skill2Cooldown > 0.f)
+		{
+			g_theRenderer->DrawMesh(m_skill2CoolDown[i]);
+		}
+	}
 	g_theRenderer->DrawMesh(m_countDown);
 
 	DebugRenderScreen();
@@ -585,9 +651,17 @@ void Game::LoadResources()
 	ProjectileDef* apple = new ProjectileDef();
 	m_projectileInfo["Apple"] = apple;
 
+	ProjectileDef* bullet = new ProjectileDef();
+	m_projectileInfo["Bullet"] = bullet;
+
 	ProjectileDef* appleRain = new ProjectileDef();
 	appleRain->size = 2.f;
 	m_projectileInfo["AppleRain"] = appleRain;
+
+	ProjectileDef* rope = new ProjectileDef();
+	rope->size = 2.f;
+	rope->damageCoef = 0.f;
+	m_projectileInfo["Rope"] = rope;
 
 	// Load Skill Definition
 	SkillDefinition* appleAttack = new SkillDefinition(apple);
@@ -598,6 +672,14 @@ void Game::LoadResources()
 	appleSkill->SetSkillType(SKILL_NEWTON_SKILL_1);
 	m_skillInfo["Newton_1"] = appleSkill;
 
+	SkillDefinition* bulletSkill = new SkillDefinition(bullet);
+	bulletSkill->SetSkillType(SKILL_JONES_NORMAL_ATTACK);
+	m_skillInfo["Jones_0"] = bulletSkill;
+
+	SkillDefinition* ropeSkill = new SkillDefinition(rope);
+	ropeSkill->SetSkillType(SKILL_JONES_SKILL_1);
+	m_skillInfo["Jones_1"] = ropeSkill;
+
 	// Load Player Attrib
 	PlayerAttrib* newton = new PlayerAttrib();
 	newton->SkillID_1 = "Newton_0";
@@ -605,6 +687,8 @@ void Game::LoadResources()
 	m_playerInfo["Newton"] = newton;
 
 	PlayerAttrib* jones = new PlayerAttrib();
+	jones->SkillID_1 = "Jones_0";
+	jones->SkillID_2 = "Jones_1";
 	m_playerInfo["Jones"] = jones;
 	
 	// TBDs

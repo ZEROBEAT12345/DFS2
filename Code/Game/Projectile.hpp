@@ -4,6 +4,7 @@
 
 class Rigidbody2D;
 class ProjectileDef;
+class PlayerController;
 class GPUMesh;
 class Map;
 
@@ -42,6 +43,7 @@ public:
 
 	// Event Functions
 	void OnHit();
+	void OnOverlapWithPlayer(PlayerController* target);
 	// TBD
 
 	// Accessors
@@ -74,4 +76,10 @@ private:
 	// Newton - skill 2 - dash
 	bool m_isDashOn = true;
 	float m_dashSpeed = 3.0f;
+
+	// Jones - skill 1 - rope
+	PlayerController* m_target = nullptr;
+	bool m_isRopeFlying = true;
+	float m_minDist = 11.f;
+
 };

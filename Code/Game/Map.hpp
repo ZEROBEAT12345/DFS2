@@ -4,6 +4,7 @@
 #include "Engine/Math/IntVec2.hpp"
 #include "Game/VoxelParticle.hpp"
 
+class Game;
 class Projectile;
 class VoxelMesh;
 class CPUMesh;
@@ -16,7 +17,7 @@ class PlayerController;
 class Map
 {
 public:
-	Map() {}
+	Map(Game* game): m_theGame(game){}
 	~Map();
 	void Initialize(std::string defFilePath);
 	void Update(float deltaSeconds);
@@ -31,14 +32,17 @@ public:
 	PlayerController* PlayerB() const { return m_players[1]; }
 	IntVec2 GetMapGrid() const { return m_dimension; }
 	float GetGridScale() const { return m_gridScale; }
+	float GetPlayerCooldown(int playerID, int skillID);
 	Vec2 GetTileCenter(IntVec2 tile) 
 	{
 		return Vec2((tile.x + .5f) * m_gridScale, (tile.y + .5f) * m_gridScale);
 	}
 
-	Vec3 GetMapCenterWorld() const {
+	Vec3 GetMapCenterWorld() const 
+	{
 		return Vec3(m_dimension.x * m_gridScale / 2.f,
-			0.f, m_dimension.y * m_gridScale / 2.f); }
+			0.f, m_dimension.y * m_gridScale / 2.f); 
+	}
 
 	Vec3 GetPlayerStart(int playerID)
 	{
@@ -68,6 +72,8 @@ public:
 	void DealAOEDamage(Vec2 pos, float radius, int damage, bool inSide);
 
 private:
+	Game* m_theGame = nullptr;
+
 	// Map info
 	IntVec2 m_dimension;
 	float m_gridScale = 1.f;

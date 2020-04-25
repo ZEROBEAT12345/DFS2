@@ -36,6 +36,17 @@ void PlayerController::BeginFrame()
 
 void PlayerController::Update(float deltaSeconds)
 {
+	// Update Skill cooldown
+	for(int i = 0; i < SKILL_NUM; i++)
+	{
+		if(m_skillCoolDown[i] > 0.f)
+		{
+			m_skillCoolDown[i] -= deltaSeconds;
+			if (m_skillCoolDown[i] < 0.f)
+				m_skillCoolDown[i] = 0.f;
+		}
+	}
+
 	HandleJoystickInput(deltaSeconds);
 	m_bodyAnimator->Update(deltaSeconds);
 }
@@ -98,6 +109,9 @@ void PlayerController::SetFreezeInput(bool isFrezze)
 
 void PlayerController::HandleJoystickInput(float deltaSeconds)
 {
+	if (m_isFrozen)
+		return;
+
 	if (m_controllerID < 0)
 		return;
 
@@ -136,7 +150,11 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 // Gameplay
 void PlayerController::UseSkill(int skillID)
 {
+	if (m_skillCoolDown[skillID] > 0.f)
+		return;
+
 	m_skills[skillID]->Cast(this, m_curMap); 
+	m_skillCoolDown[skillID] = m_skills[skillID]->cooldown;
 	m_bodyAnimator->PlayAnimation(m_attackAnim);
 	m_game->m_soundPlaybackList[SOUND_TYPE_PLAYER_SHOOT] = g_theAudio->PlaySound(m_game->m_soundList[SOUND_TYPE_PLAYER_SHOOT]);
 }
