@@ -67,6 +67,13 @@ public:
 	void GetDamage(int damage);
 	void SetPos(Vec3 pos) { m_pos = Vec2(pos.x, pos.z); }
 	void Translate(Vec2 trans) { m_pos += trans; }
+	void Dash(float velocity, float time) {
+		m_isDash = true; 
+		m_isFrozen = true;
+		m_dashCount = 0.f;
+		m_dashMaxTime = time; 
+		m_dashSpeed = velocity;
+	}
 
 	// Accessors
 	Vec2 GetPos() const { return m_pos; }
@@ -107,4 +114,8 @@ private:
 	bool m_isFrozen = false;
 	SkillDefinition* m_skills[SKILL_NUM];
 	float m_skillCoolDown[SKILL_NUM];
+	bool m_isDash = false;
+	float m_dashSpeed = 5.f;
+	float m_dashCount = 0.f;
+	float m_dashMaxTime = 0.f;
 };

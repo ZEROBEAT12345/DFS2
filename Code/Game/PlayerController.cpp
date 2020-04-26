@@ -47,7 +47,25 @@ void PlayerController::Update(float deltaSeconds)
 		}
 	}
 
-	HandleJoystickInput(deltaSeconds);
+	if(m_isDash)
+	{
+		m_dashCount += deltaSeconds;
+		if(m_dashCount > m_dashMaxTime)
+		{
+			m_isDash = false;
+			m_isFrozen = false;
+		}
+
+		// update dash here
+		Vec2 DeltaPosition;
+		DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_attribe.movingSpeed);
+
+		m_pos += DeltaPosition;
+	}
+	else
+	{
+		HandleJoystickInput(deltaSeconds);
+	}
 	m_bodyAnimator->Update(deltaSeconds);
 }
 
@@ -144,6 +162,12 @@ void PlayerController::HandleJoystickInput(float deltaSeconds)
 	if (Ystate.WasJustPressed())
 	{
 		UseSkill(SKILL_1);
+	}
+
+	KeyButtonState Astate = controller.GetButtonState(XBOX_BUTTON_ID_A);
+	if (Astate.WasJustPressed())
+	{
+		UseSkill(SKILL_2);
 	}
 }
 

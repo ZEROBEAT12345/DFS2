@@ -198,7 +198,7 @@ void Game::Startup()
 			newPlayer->AddModel("Data/Models/Ply/Newton.ply", "Data/Models/Ply/hand_Test.ply");
 			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_1], SKILL_NORMAL_ATTACK);
 			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_2], SKILL_1);
-			//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_3], SKILL_2);
+			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_3], SKILL_2);
 			//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_4], SKILL_1);
 			newPlayer->AddDamagedAnim(m_animInfo["test"]);
 			newPlayer->AddAttackAnim(m_animInfo["test"]);
@@ -212,7 +212,7 @@ void Game::Startup()
 			newPlayer->AddModel("Data/Models/Ply/Jones.ply", "Data/Models/Ply/hand_Test.ply");
 			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_1], SKILL_NORMAL_ATTACK);
 			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_2], SKILL_1);
-			//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_3], SKILL_2);
+			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_3], SKILL_2);
 			//newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_4], SKILL_1);
 			newPlayer->AddDamagedAnim(m_animInfo["test"]);
 			newPlayer->AddAttackAnim(m_animInfo["test"]);
@@ -373,6 +373,12 @@ void Game::Shutdown()
 
 		if (m_skill1CoolDown[i])
 			delete m_skill1CoolDown[i];
+
+		if (m_skill2CoolDown[i])
+			delete m_skill2CoolDown[i];
+
+		if (m_skill3CoolDown[i])
+			delete m_skill3CoolDown[i];
 	}
 
 }
@@ -672,6 +678,10 @@ void Game::LoadResources()
 	appleSkill->SetSkillType(SKILL_NEWTON_SKILL_1);
 	m_skillInfo["Newton_1"] = appleSkill;
 
+	SkillDefinition* dashSkill = new SkillDefinition(nullptr);
+	dashSkill->SetSkillType(SKILL_NEWTON_SKILL_2);
+	m_skillInfo["Newton_2"] = dashSkill;
+
 	SkillDefinition* bulletSkill = new SkillDefinition(bullet);
 	bulletSkill->SetSkillType(SKILL_JONES_NORMAL_ATTACK);
 	m_skillInfo["Jones_0"] = bulletSkill;
@@ -680,15 +690,21 @@ void Game::LoadResources()
 	ropeSkill->SetSkillType(SKILL_JONES_SKILL_1);
 	m_skillInfo["Jones_1"] = ropeSkill;
 
+	SkillDefinition* grabSkill = new SkillDefinition(nullptr);
+	grabSkill->SetSkillType(SKILL_JONES_SKILL_2);
+	m_skillInfo["Jones_2"] = grabSkill;
+
 	// Load Player Attrib
 	PlayerAttrib* newton = new PlayerAttrib();
 	newton->SkillID_1 = "Newton_0";
 	newton->SkillID_2 = "Newton_1";
+	newton->SkillID_3 = "Newton_2";
 	m_playerInfo["Newton"] = newton;
 
 	PlayerAttrib* jones = new PlayerAttrib();
 	jones->SkillID_1 = "Jones_0";
 	jones->SkillID_2 = "Jones_1";
+	jones->SkillID_3 = "Jones_2";
 	m_playerInfo["Jones"] = jones;
 	
 	// TBDs
