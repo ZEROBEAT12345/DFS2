@@ -82,4 +82,7 @@ private:
 	bool m_isRopeFlying = true;
 	float m_minDist = 11.f;
 
+	// Jones - skill 2 - craw
+	bool m_isCrawFlying = true;
+	float m_minCrawDist = 3.f;
 };

@@ -669,6 +669,11 @@ void Game::LoadResources()
 	rope->damageCoef = 0.f;
 	m_projectileInfo["Rope"] = rope;
 
+	ProjectileDef* claw = new ProjectileDef();
+	claw->size = 2.f;
+	claw->damageCoef = 0.f;
+	m_projectileInfo["Claw"] = claw;
+
 	// Load Skill Definition
 	SkillDefinition* appleAttack = new SkillDefinition(apple);
 	appleAttack->SetSkillType(SKILL_NEWTON_NORMAL_ATTACK);
@@ -690,7 +695,7 @@ void Game::LoadResources()
 	ropeSkill->SetSkillType(SKILL_JONES_SKILL_1);
 	m_skillInfo["Jones_1"] = ropeSkill;
 
-	SkillDefinition* grabSkill = new SkillDefinition(nullptr);
+	SkillDefinition* grabSkill = new SkillDefinition(claw);
 	grabSkill->SetSkillType(SKILL_JONES_SKILL_2);
 	m_skillInfo["Jones_2"] = grabSkill;
 

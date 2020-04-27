@@ -57,6 +57,14 @@ void SkillDefinition::Cast(PlayerController* player, Map* curMap)
 		}
 		break;
 	case SKILL_JONES_SKILL_2:
+		// Spawn new projectile
+		if (m_pDef)
+		{
+			Projectile* newP = new Projectile(m_pDef, curMap, player->GetPos() + curMap->GetGridScale() * .3f *
+				Vec2(CosDegrees(player->GetForwardAngle()), SinDegrees(player->GetForwardAngle())), player->GetForwardAngle(), 14.f, player->GetPlayerID(), PROJECTILE_JONES_SKILL_2);
+			newP->Initialize();
+			curMap->AddProjectile(newP);
+		}
 		break;
 	}
 

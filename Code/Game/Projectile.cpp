@@ -105,7 +105,7 @@ void Projectile::Update(float deltaSeconds)
 		}
 		else
 		{
-			// Drag It back
+			// Drag Player to projectile
 			DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_def->velocity);
 			m_pos += DeltaPosition;
 			m_target->Translate(DeltaPosition);
@@ -114,7 +114,7 @@ void Projectile::Update(float deltaSeconds)
 
 			PlayerController* player = m_playerID == 0 ? m_themap->PlayerA() : m_themap->PlayerB();
 			float dist = (player->GetPos() - m_target->GetPos()).GetLength();
-			if(dist <= m_minDist)
+			if (dist <= m_minDist)
 			{
 				// Stop Dragging
 				player->SetFreezeInput(false);
@@ -125,6 +125,36 @@ void Projectile::Update(float deltaSeconds)
 		}
 		break;
 	case PROJECTILE_JONES_SKILL_2:
+		if (m_isCrawFlying)
+		{
+			// update rope head
+			m_lifespan += deltaSeconds;
+			if (m_lifespan > m_def->existTime)
+			{
+				Die();
+			}
+
+			DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_def->velocity);
+			m_pos += DeltaPosition;
+		}
+		else
+		{
+			// Drag It back
+			DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_def->velocity);
+
+			// stop dragging if reach the player
+
+			PlayerController* player = m_playerID == 0 ? m_themap->PlayerA() : m_themap->PlayerB();
+			player->Translate(DeltaPosition);
+			float dist = (player->GetPos() - m_pos).GetLength();
+			if (dist <= m_minCrawDist)
+			{
+				// Stop Dragging
+				player->SetFreezeInput(false);
+
+				Die();
+			}
+		}
 		break;
 	case PROJECTILE_TYPE_NUM:
 		break;
@@ -187,6 +217,11 @@ void Projectile::Render()
 		g_theRenderer->DrawMesh(m_mesh);
 		break;
 	case PROJECTILE_JONES_SKILL_2:
+		curMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
+		curMat.SetTranslation(Vec3(m_pos.x, m_height, m_pos.y));
+		curMat = curMat * Matrix44::MakeUniformScale3D(m_def->size);
+		g_theRenderer->BindModelMatrix(curMat);
+		g_theRenderer->DrawMesh(m_mesh);
 		break;
 	case PROJECTILE_TYPE_NUM:
 		break;
@@ -204,6 +239,9 @@ void Projectile::Die()
 
 void Projectile::OnHit()
 { 
+	PlayerController* player = nullptr;
+	player = m_playerID == 0 ? m_themap->PlayerA() : m_themap->PlayerB();
+
 	switch (m_pid)
 	{
 	case PROJECTILE_NEWTON_NORMAL_ATTACK:
@@ -229,6 +267,13 @@ void Projectile::OnHit()
 		Die();
 		break;
 	case PROJECTILE_JONES_SKILL_2:
+		// Start dragging
+		if (m_isCrawFlying)
+		{
+			m_isCrawFlying = false;
+
+			player->SetFreezeInput(true);
+		}
 		break;
 	case PROJECTILE_TYPE_NUM:
 		break;
@@ -270,6 +315,7 @@ void Projectile::OnOverlapWithPlayer(PlayerController* target)
 		
 		break;
 	case PROJECTILE_JONES_SKILL_2:
+		Die();
 		break;
 	case PROJECTILE_TYPE_NUM:
 		break;
