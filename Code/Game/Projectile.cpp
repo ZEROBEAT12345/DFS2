@@ -208,6 +208,11 @@ void Projectile::Render()
 	case PROJECTILE_NEWTON_SKILL_2:
 		break;
 	case PROJECTILE_JONES_NORMAL_ATTACK:
+		curMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
+		curMat.SetTranslation(Vec3(m_pos.x, m_height, m_pos.y));
+		curMat = curMat * Matrix44::MakeUniformScale3D(m_def->size);
+		g_theRenderer->BindModelMatrix(curMat);
+		g_theRenderer->DrawMesh(m_mesh);
 		break;
 	case PROJECTILE_JONES_SKILL_1:
 		curMat = Matrix44::MakeYRotationDegrees(-m_forwardAngle);
@@ -300,6 +305,8 @@ void Projectile::OnOverlapWithPlayer(PlayerController* target)
 	case PROJECTILE_NEWTON_SKILL_2:
 		break;
 	case PROJECTILE_JONES_NORMAL_ATTACK:
+		target->GetDamage((int)m_def->damageCoef);
+		Die();
 		break;
 	case PROJECTILE_JONES_SKILL_1:
 		// Start dragging

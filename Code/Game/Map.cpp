@@ -386,7 +386,7 @@ void Map::Render()
 
 	// Render particles
 	g_theRenderer->BindModelMatrix(Matrix44::MakeTranslation3D(GetMapCenterWorld()));
-	// g_theRenderer->DrawMesh(m_particleMesh);
+	//g_theRenderer->DrawMesh(m_particleMesh);
 }
 
 void Map::DeleteGarbageEntities()

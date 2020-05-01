@@ -16,7 +16,10 @@ void SkillDefinition::Cast(PlayerController* player, Map* curMap)
 		if (m_pDef)
 		{
 			Projectile* newP = new Projectile(m_pDef, curMap, player->GetPos() + curMap->GetGridScale() * .3f *
-				Vec2(CosDegrees(player->GetForwardAngle()), SinDegrees(player->GetForwardAngle())), player->GetForwardAngle(), 14.f, player->GetPlayerID());
+				Vec2(CosDegrees(player->GetForwardAngle()), 
+					SinDegrees(player->GetForwardAngle())), 
+				player->GetForwardAngle(), 
+				14.f, player->GetPlayerID());
 			newP->Initialize();
 			curMap->AddProjectile(newP);
 		}
@@ -33,7 +36,7 @@ void SkillDefinition::Cast(PlayerController* player, Map* curMap)
 		break;
 	case SKILL_NEWTON_SKILL_2:
 		// Start Dash
-		player->Dash(5.f, 3.f);
+		player->Dash(100.f, .7f);
 
 		break;
 	case SKILL_JONES_NORMAL_ATTACK:

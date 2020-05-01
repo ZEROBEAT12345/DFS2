@@ -58,7 +58,7 @@ void PlayerController::Update(float deltaSeconds)
 
 		// update dash here
 		Vec2 DeltaPosition;
-		DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_attribe.movingSpeed);
+		DeltaPosition = deltaSeconds * Vec2::MakeFromPolarDegrees(m_forwardAngle, m_dashSpeed);
 
 		m_pos += DeltaPosition;
 	}
@@ -201,4 +201,6 @@ void PlayerController::GetDamage(int damage)
 void PlayerController::Die()
 {
 	m_isDead = true;
+
+	m_game->WinGame(1 - m_controllerID);
 }

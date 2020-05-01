@@ -181,6 +181,27 @@ void Game::Startup()
 	g_assetLoader->RegisterMesh("Apple", aMesh);
 	m_voxelLib["Apple"] = appleVoxel;
 
+	VoxelMesh* bulletVoxel = new VoxelMesh();
+	bulletVoxel->LoadFromFiles("Data/Models/Ply/bullet.ply");
+	GPUMesh* bMesh = new GPUMesh(g_theRenderer->GetCTX());
+	CPUMesh* bulletMesh = bulletVoxel->GenerateMesh(0.5f);
+	bMesh->CreateFromCPUMesh(bulletMesh, VERTEX_TYPE_LIGHT);
+	g_assetLoader->RegisterMesh("Bullet", bMesh);
+
+	VoxelMesh* clawVoxel = new VoxelMesh();
+	clawVoxel->LoadFromFiles("Data/Models/Ply/claw.ply");
+	GPUMesh* cMesh = new GPUMesh(g_theRenderer->GetCTX());
+	CPUMesh* clawMesh = clawVoxel->GenerateMesh(0.5f);
+	cMesh->CreateFromCPUMesh(clawMesh, VERTEX_TYPE_LIGHT);
+	g_assetLoader->RegisterMesh("Claw", cMesh);
+
+	VoxelMesh* ropeVoxel = new VoxelMesh();
+	ropeVoxel->LoadFromFiles("Data/Models/Ply/rope.ply");
+	GPUMesh* rMesh = new GPUMesh(g_theRenderer->GetCTX());
+	CPUMesh* ropeMesh = ropeVoxel->GenerateMesh(0.5f);
+	rMesh->CreateFromCPUMesh(ropeMesh, VERTEX_TYPE_LIGHT);
+	g_assetLoader->RegisterMesh("Rope", rMesh);
+
 	LoadResources();
 
 	// Initialize Map
@@ -209,7 +230,7 @@ void Game::Startup()
 		{
 			newPlayer = new PlayerController(i, m_curMap, this, *m_playerInfo["Jones"]);
 			newPlayer->Initialize();
-			newPlayer->AddModel("Data/Models/Ply/Jones.ply", "Data/Models/Ply/hand_Test.ply");
+			newPlayer->AddModel("Data/Models/Ply/Jones.ply", "Data/Models/Ply/revolver.ply");
 			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_1], SKILL_NORMAL_ATTACK);
 			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_2], SKILL_1);
 			newPlayer->AddSkill(m_skillInfo[newPlayer->m_attribe.SkillID_3], SKILL_2);
@@ -381,183 +402,298 @@ void Game::Shutdown()
 			delete m_skill3CoolDown[i];
 	}
 
+	if (m_winScreen)
+		delete m_winScreen;
+
+	if (m_winPlayerHeader)
+		delete m_winPlayerHeader;
+
+	if (m_winPlayerName)
+		delete m_winPlayerName;
+
+	if (m_restartText)
+		delete m_restartText;
 }
 
 void Game::Update(float deltaSeconds)
 {
-	// Update camera config
-	if(!m_lockCamera)
+	// Update match info
+	if(m_isWinGame)
 	{
-		cameraMovingDir = Vec3::ZERO;
-		if (cameraMoveFront)
-			cameraMovingDir += Vec3(0.f, 0.f, 1.f);
-
-		if (cameraMoveBack)
-			cameraMovingDir += Vec3(0.f, 0.f, -1.f);
-
-		if (cameraMoveLeft)
-			cameraMovingDir += Vec3(-1.f, 0.f, 0.f);
-
-		if (cameraMoveRight)
-			cameraMovingDir += Vec3(1.f, 0.f, 0.f);
-
-		Matrix44 cameraRotateMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), Vec3::ZERO);
-		Vec3 cameraLocalTrans = cameraMovingDir * cameraMovingSpeed * deltaSeconds;
-		Vec4 cameraWorldTrans = cameraRotateMat * Vec4(cameraLocalTrans.x, cameraLocalTrans.y, cameraLocalTrans.z, 0.f);
-		m_cameraPos += Vec3(cameraWorldTrans.x, cameraWorldTrans.y, cameraWorldTrans.z);
-
-		IntVec2 mouseTrans = g_theWindow->GetClientMouseRelativePositon();
-		float Yangle = mouseTrans.x / 10.f;
-		float Xangle = mouseTrans.y / 10.f;
-		cameraXangle += Xangle;
-		cameraYangle += Yangle;
-
-		Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
-		m_camera->SetModelMatrix(cameraMat);
-
-		DebugRenderMessage(0.f, Rgba::RED, Rgba::RED, "camerapos:(%f ,%f, %f) Xangle:%f Yangle:%f ", m_cameraPos.x, m_cameraPos.y, m_cameraPos.z, cameraXangle, cameraYangle);
-	}
-	
-	// Update light configs
-	AdjustAmbient(deltaSeconds);
-
-	// Update garbage entities
-	DeleteGarbageEntities();
-
-	// Change direction light
-	xzAngle += deltaSeconds * 30.f;
-	g_theRenderer->SetDirLightDir(Vec3(CosDegrees(xzAngle), -1.f, SinDegrees(xzAngle)));
-
-	// Gameplay Update
-	m_curMap->Update(deltaSeconds);
-
-	// Update HUD
-	int health1 = m_curMap->PlayerA()->GetCurrentHealth();
-	int maxHealth1 = m_curMap->PlayerA()->m_attribe.maxHealth;
-	float ratio1 = health1 / (float)maxHealth1;
-	CPUMesh healthBar1 = CPUMesh();
-	AABB2 barBox1 = AABB2(Vec2(3.f, 94.f), Vec2(3.f + 40.f * ratio1, 99.f));
-	CPUMeshAddBox2D(&healthBar1, barBox1, Rgba::PINK_TAIKOH, Vec2::ZERO, Vec2::ONE);
-	delete m_healthBar;
-	m_healthBar = new GPUMesh(g_theRenderer->GetCTX());
-	m_healthBar->CreateFromCPUMesh(&healthBar1, VERTEX_TYPE_LIGHT);
-
-	int health2 = m_curMap->PlayerB()->GetCurrentHealth();
-	int maxHealth2 = m_curMap->PlayerB()->m_attribe.maxHealth;
-	float ratio2 = health2 / (float)maxHealth2;
-	CPUMesh healthBar2 = CPUMesh();
-	AABB2 barBox2 = AABB2(Vec2(147.f - ratio2 * 40.f, 94.f), Vec2(147.f, 99.f));
-	CPUMeshAddBox2D(&healthBar2, barBox2, Rgba::PINK_TAIKOH, Vec2::ZERO, Vec2::ONE);
-	delete m_healthBar_2;
-	m_healthBar_2 = new GPUMesh(g_theRenderer->GetCTX());
-	m_healthBar_2->CreateFromCPUMesh(&healthBar2, VERTEX_TYPE_LIGHT);
-
-	for(int i  = 0; i < MAX_PLAYER_NUM; i++)
-	{
-		float skill1Cooldown = m_curMap->GetPlayerCooldown(i, 1);
-		float skill2Cooldown = m_curMap->GetPlayerCooldown(i, 2);
-		float padding = 135.f;
-
-		if(skill1Cooldown > 0.f)
+		if(!m_winScreen)
 		{
-			CPUMesh coolDown1;
-			CPUMeshAddText(&coolDown1, g_testFont, Vec2(2.f + i * padding, 72.f), 3.f, std::to_string((int)skill1Cooldown + 1), Rgba::BLACK);
-
-			if (m_skill1CoolDown[i])
-				delete m_skill1CoolDown[i];
-
-			m_skill1CoolDown[i] = new GPUMesh(g_theRenderer->GetCTX());
-			m_skill1CoolDown[i]->CreateFromCPUMesh(&coolDown1, VERTEX_TYPE_LIGHT);
+			CPUMesh winBg = CPUMesh();
+			AABB2 bgBox = AABB2(Vec2(0.f, 0.f), Vec2(150.f, 100.f));
+			CPUMeshAddBox2D(&winBg, bgBox, Rgba::WHITE, Vec2::ZERO, Vec2::ONE);
+			m_winScreen = new GPUMesh(g_theRenderer->GetCTX());
+			m_winScreen->CreateFromCPUMesh(&winBg, VERTEX_TYPE_LIGHT);
 		}
 
-		if (skill2Cooldown > 0.f)
+		if(!m_winPlayerHeader)
 		{
-			CPUMesh coolDown2;
-			CPUMeshAddText(&coolDown2, g_testFont, Vec2(7.f + i * padding, 80.f), 3.f, std::to_string((int)skill2Cooldown + 1), Rgba::BLACK);
+			CPUMesh winPlayerHeader = CPUMesh();
+			AABB2 bgBox = AABB2(Vec2(50.f, 50.f), Vec2(70.f, 70.f));
+			CPUMeshAddBox2D(&winPlayerHeader, bgBox, Rgba::WHITE, Vec2::ZERO, Vec2::ONE);
+			m_winScreen = new GPUMesh(g_theRenderer->GetCTX());
+			m_winScreen->CreateFromCPUMesh(&winPlayerHeader, VERTEX_TYPE_LIGHT);
+		}
 
-			if (m_skill2CoolDown[i])
-				delete m_skill2CoolDown[i];
-
-			m_skill2CoolDown[i] = new GPUMesh(g_theRenderer->GetCTX());
-			m_skill2CoolDown[i]->CreateFromCPUMesh(&coolDown2, VERTEX_TYPE_LIGHT);
+		if(!m_winPlayerName)
+		{
+			CPUMesh winPlayerName = CPUMesh();
+			std::string winPlayerString = "PLAYER ";
+			winPlayerString += std::to_string(m_winPlayerID + 1) + " WINS!!!";
+			CPUMeshAddText(&winPlayerName, g_testFont, Vec2(80.f, 60.f), 3.f, winPlayerString, Rgba::WHITE);
+			m_winPlayerName = new GPUMesh(g_theRenderer->GetCTX());
+			m_winPlayerName->CreateFromCPUMesh(&winPlayerName, VERTEX_TYPE_LIGHT);
 		}
 	}
-	GPUMesh* m_skill1CoolDown[MAX_PLAYER_NUM];
-
-	// Update game time
-	m_gameTime -= deltaSeconds;
-	if(m_gameTime < m_deathZoneStartTime)
-	{
-		m_curMap->StartDeathZone();
-	}
-	//DebugRenderMessage(.0F, Rgba::PINK_IKKONZOME, Rgba::PINK_IKKONZOME, "Countdown: %f", m_gameTime);
-	CPUMesh countMesh = CPUMesh();
-	if(m_gameTime >= 30.f)
-		CPUMeshAddText(&countMesh, g_testFont, Vec2(65.f, 90.f), 10.f, std::to_string((int)m_gameTime));
 	else
-		CPUMeshAddText(&countMesh, g_testFont, Vec2(65.f, 90.f), 10.f, std::to_string((int)m_gameTime), Rgba::RED);
-	delete m_countDown;
-	m_countDown = new GPUMesh(g_theRenderer->GetCTX());
-	m_countDown->CreateFromCPUMesh(&countMesh, VERTEX_TYPE_LIGHT);
+	{
+		// Update camera config
+		if (!m_lockCamera)
+		{
+			cameraMovingDir = Vec3::ZERO;
+			if (cameraMoveFront)
+				cameraMovingDir += Vec3(0.f, 0.f, 1.f);
 
+			if (cameraMoveBack)
+				cameraMovingDir += Vec3(0.f, 0.f, -1.f);
+
+			if (cameraMoveLeft)
+				cameraMovingDir += Vec3(-1.f, 0.f, 0.f);
+
+			if (cameraMoveRight)
+				cameraMovingDir += Vec3(1.f, 0.f, 0.f);
+
+			Matrix44 cameraRotateMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), Vec3::ZERO);
+			Vec3 cameraLocalTrans = cameraMovingDir * cameraMovingSpeed * deltaSeconds;
+			Vec4 cameraWorldTrans = cameraRotateMat * Vec4(cameraLocalTrans.x, cameraLocalTrans.y, cameraLocalTrans.z, 0.f);
+			m_cameraPos += Vec3(cameraWorldTrans.x, cameraWorldTrans.y, cameraWorldTrans.z);
+
+			IntVec2 mouseTrans = g_theWindow->GetClientMouseRelativePositon();
+			float Yangle = mouseTrans.x / 10.f;
+			float Xangle = mouseTrans.y / 10.f;
+			cameraXangle += Xangle;
+			cameraYangle += Yangle;
+
+			Matrix44 cameraMat = Matrix44::MakeRotationForEulerZXY(Vec3(cameraXangle, cameraYangle, 0.f), m_cameraPos);
+			m_camera->SetModelMatrix(cameraMat);
+
+			DebugRenderMessage(0.f, Rgba::RED, Rgba::RED, "camerapos:(%f ,%f, %f) Xangle:%f Yangle:%f ", m_cameraPos.x, m_cameraPos.y, m_cameraPos.z, cameraXangle, cameraYangle);
+		}
+
+		// Update light configs
+		AdjustAmbient(deltaSeconds);
+
+		// Update garbage entities
+		DeleteGarbageEntities();
+
+		// Change direction light
+		xzAngle += deltaSeconds * 30.f;
+		g_theRenderer->SetDirLightDir(Vec3(CosDegrees(xzAngle), -1.f, SinDegrees(xzAngle)));
+
+		// Gameplay Update
+		m_curMap->Update(deltaSeconds);
+
+		// Update HUD
+		int health1 = m_curMap->PlayerA()->GetCurrentHealth();
+		int maxHealth1 = m_curMap->PlayerA()->m_attribe.maxHealth;
+		float ratio1 = health1 / (float)maxHealth1;
+		CPUMesh healthBar1 = CPUMesh();
+		AABB2 barBox1 = AABB2(Vec2(3.f, 94.f), Vec2(3.f + 40.f * ratio1, 99.f));
+		CPUMeshAddBox2D(&healthBar1, barBox1, Rgba::PINK_TAIKOH, Vec2::ZERO, Vec2::ONE);
+		delete m_healthBar;
+		m_healthBar = new GPUMesh(g_theRenderer->GetCTX());
+		m_healthBar->CreateFromCPUMesh(&healthBar1, VERTEX_TYPE_LIGHT);
+
+		int health2 = m_curMap->PlayerB()->GetCurrentHealth();
+		int maxHealth2 = m_curMap->PlayerB()->m_attribe.maxHealth;
+		float ratio2 = health2 / (float)maxHealth2;
+		CPUMesh healthBar2 = CPUMesh();
+		AABB2 barBox2 = AABB2(Vec2(147.f - ratio2 * 40.f, 94.f), Vec2(147.f, 99.f));
+		CPUMeshAddBox2D(&healthBar2, barBox2, Rgba::PINK_TAIKOH, Vec2::ZERO, Vec2::ONE);
+		delete m_healthBar_2;
+		m_healthBar_2 = new GPUMesh(g_theRenderer->GetCTX());
+		m_healthBar_2->CreateFromCPUMesh(&healthBar2, VERTEX_TYPE_LIGHT);
+
+		for (int i = 0; i < MAX_PLAYER_NUM; i++)
+		{
+			float skill1Cooldown = m_curMap->GetPlayerCooldown(i, 1);
+			float skill2Cooldown = m_curMap->GetPlayerCooldown(i, 2);
+			float padding = 135.f;
+
+			if (skill1Cooldown > 0.f)
+			{
+				CPUMesh coolDown1;
+				CPUMeshAddText(&coolDown1, g_testFont, Vec2(2.f + i * padding, 72.f), 3.f, std::to_string((int)skill1Cooldown + 1), Rgba::BLACK);
+
+				if (m_skill1CoolDown[i])
+					delete m_skill1CoolDown[i];
+
+				m_skill1CoolDown[i] = new GPUMesh(g_theRenderer->GetCTX());
+				m_skill1CoolDown[i]->CreateFromCPUMesh(&coolDown1, VERTEX_TYPE_LIGHT);
+			}
+
+			if (skill2Cooldown > 0.f)
+			{
+				CPUMesh coolDown2;
+				CPUMeshAddText(&coolDown2, g_testFont, Vec2(7.f + i * padding, 80.f), 3.f, std::to_string((int)skill2Cooldown + 1), Rgba::BLACK);
+
+				if (m_skill2CoolDown[i])
+					delete m_skill2CoolDown[i];
+
+				m_skill2CoolDown[i] = new GPUMesh(g_theRenderer->GetCTX());
+				m_skill2CoolDown[i]->CreateFromCPUMesh(&coolDown2, VERTEX_TYPE_LIGHT);
+			}
+		}
+		GPUMesh* m_skill1CoolDown[MAX_PLAYER_NUM];
+
+		// Update game time
+		m_gameTime -= deltaSeconds;
+		if (m_gameTime < m_deathZoneStartTime)
+		{
+			m_curMap->StartDeathZone();
+		}
+		//DebugRenderMessage(.0F, Rgba::PINK_IKKONZOME, Rgba::PINK_IKKONZOME, "Countdown: %f", m_gameTime);
+		CPUMesh countMesh = CPUMesh();
+		if (m_gameTime >= 30.f)
+			CPUMeshAddText(&countMesh, g_testFont, Vec2(65.f, 90.f), 10.f, std::to_string((int)m_gameTime));
+		else
+			CPUMeshAddText(&countMesh, g_testFont, Vec2(65.f, 90.f), 10.f, std::to_string((int)m_gameTime), Rgba::RED);
+		delete m_countDown;
+		m_countDown = new GPUMesh(g_theRenderer->GetCTX());
+		m_countDown->CreateFromCPUMesh(&countMesh, VERTEX_TYPE_LIGHT);
+
+	}
+
+	
 }
 
 void Game::Render()
 {
-	g_theRenderer->ClearScreen(Rgba(0.f,0.f,0.f,1.f));
-
-	g_theRenderer->BeginCamera(*m_camera);
-
-	g_theRenderer->ClearScreen(Rgba(0.1f,0.1f,0.1f,1.f));
-	g_theRenderer->ClearDepthStencilTargetOnCamera(m_camera);
-	g_theRenderer->BindMaterial(m_mat);
-
-	// Render map
-	m_curMap->Render();
-
-	g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("white"), g_assetLoader->CreateOrGetSampler("linear"));
-
-	// Render HUD
-	g_theRenderer->BeginCamera(*m_HUDCamera);
-	g_theRenderer->BindShader(g_assetLoader->CreateOrGetShaderFromXMLFile("defaultShader"));
-	g_theRenderer->BindModelMatrix(Matrix44::identity);
-	g_theRenderer->DrawMesh(m_healthBarBg);
-	g_theRenderer->DrawMesh(m_healthBarBg_2);
-	g_theRenderer->DrawMesh(m_healthBarSlot);
-	g_theRenderer->DrawMesh(m_healthBarSlot_2);
-	g_theRenderer->DrawMesh(m_healthBar);
-	g_theRenderer->DrawMesh(m_healthBar_2);
-
-	for(int i = 0; i < MAX_PLAYER_NUM; i++)
+	if(m_isWinGame)
 	{
-		g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/gameplay/newton.png"), g_assetLoader->CreateOrGetSampler("point"));
+		if (!m_winScreen)
+		{
+			CPUMesh winBg = CPUMesh();
+			AABB2 bgBox = AABB2(Vec2(0.f, 0.f), Vec2(150.f, 100.f));
+			CPUMeshAddBox2D(&winBg, bgBox, Rgba(1.f, 1.f, 1.f, 0.3f), Vec2::ZERO, Vec2::ONE);
+			m_winScreen = new GPUMesh(g_theRenderer->GetCTX());
+			m_winScreen->CreateFromCPUMesh(&winBg, VERTEX_TYPE_LIGHT);
+		}
 
-		g_theRenderer->DrawMesh(m_skill1[i]);
-		g_theRenderer->DrawMesh(m_skill2[i]);
-		g_theRenderer->DrawMesh(m_skill3[i]);
-		g_theRenderer->DrawMesh(m_playerHeader[i]);
+		if (!m_winPlayerHeader)
+		{
+			CPUMesh winPlayerHeader = CPUMesh();
+			AABB2 bgBox = AABB2(Vec2(50.f, 50.f), Vec2(70.f, 70.f));
+			CPUMeshAddBox2D(&winPlayerHeader, bgBox, Rgba::WHITE, Vec2::ZERO, Vec2::ONE);
+			m_winPlayerHeader = new GPUMesh(g_theRenderer->GetCTX());
+			m_winPlayerHeader->CreateFromCPUMesh(&winPlayerHeader, VERTEX_TYPE_LIGHT);
+		}
 
+		if (!m_winPlayerName)
+		{
+			CPUMesh winPlayerName = CPUMesh();
+			std::string winPlayerString = "PLAYER ";
+			winPlayerString += std::to_string(m_winPlayerID + 1) + " WINS!!!";
+			CPUMeshAddText(&winPlayerName, g_testFont, Vec2(80.f, 60.f), 3.f, winPlayerString, Rgba::WHITE);
+			m_winPlayerName = new GPUMesh(g_theRenderer->GetCTX());
+			m_winPlayerName->CreateFromCPUMesh(&winPlayerName, VERTEX_TYPE_LIGHT);
+		}
+
+		if (!m_restartText)
+		{
+			CPUMesh restartText = CPUMesh();
+			std::string restartTextString = "PRESS F8 TO RESTART";
+			CPUMeshAddText(&restartText, g_testFont, Vec2(40.f, 60.f), 5.f, restartTextString, Rgba::WHITE);
+			m_restartText = new GPUMesh(g_theRenderer->GetCTX());
+			m_restartText->CreateFromCPUMesh(&restartText, VERTEX_TYPE_LIGHT);
+		}
+
+		g_theRenderer->ClearScreen(Rgba(0.f, 0.f, 0.f, 1.f));
+
+		g_theRenderer->BeginCamera(*m_HUDCamera);
+		g_theRenderer->BindShader(g_assetLoader->CreateOrGetShaderFromXMLFile("defaultShader"));
+
+		g_theRenderer->BindModelMatrix(Matrix44::identity);
+
+		g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("white"), g_assetLoader->CreateOrGetSampler("linear"));
+		g_theRenderer->DrawMesh(m_winScreen);
+
+		if(m_winPlayerID == 0)
+			g_theRenderer->BindTextureViewWithSampler(0, 
+				g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/gameplay/newton.png"), 
+				g_assetLoader->CreateOrGetSampler("point"));
+		else
+			g_theRenderer->BindTextureViewWithSampler(0,
+				g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/gameplay/newton.png"),
+				g_assetLoader->CreateOrGetSampler("point"));
+
+		g_theRenderer->DrawMesh(m_winPlayerHeader);
+
+		g_theRenderer->BindTextureViewWithSampler(0, g_testFont->GetTexture(), g_assetLoader->CreateOrGetSampler("point"));
+		g_theRenderer->DrawMesh(m_winPlayerName);
+		g_theRenderer->DrawMesh(m_restartText);
 	}
+	else
+	{
+		g_theRenderer->ClearScreen(Rgba(0.f, 0.f, 0.f, 1.f));
 
-	g_theRenderer->BindTextureViewWithSampler(0, g_testFont->GetTexture(), g_assetLoader->CreateOrGetSampler("point"));
+		g_theRenderer->BeginCamera(*m_camera);
+
+		g_theRenderer->ClearScreen(Rgba(0.1f, 0.1f, 0.1f, 1.f));
+		g_theRenderer->ClearDepthStencilTargetOnCamera(m_camera);
+		g_theRenderer->BindMaterial(m_mat);
+
+		// Render map
+		m_curMap->Render();
+
+		g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("white"), g_assetLoader->CreateOrGetSampler("linear"));
+
+		// Render HUD
+		g_theRenderer->BeginCamera(*m_HUDCamera);
+		g_theRenderer->BindShader(g_assetLoader->CreateOrGetShaderFromXMLFile("defaultShader"));
+		g_theRenderer->BindModelMatrix(Matrix44::identity);
+		g_theRenderer->DrawMesh(m_healthBarBg);
+		g_theRenderer->DrawMesh(m_healthBarBg_2);
+		g_theRenderer->DrawMesh(m_healthBarSlot);
+		g_theRenderer->DrawMesh(m_healthBarSlot_2);
+		g_theRenderer->DrawMesh(m_healthBar);
+		g_theRenderer->DrawMesh(m_healthBar_2);
+
+		for (int i = 0; i < MAX_PLAYER_NUM; i++)
+		{
+			g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/gameplay/newton.png"), g_assetLoader->CreateOrGetSampler("point"));
+
+			g_theRenderer->DrawMesh(m_skill1[i]);
+			g_theRenderer->DrawMesh(m_skill2[i]);
+			g_theRenderer->DrawMesh(m_skill3[i]);
+			g_theRenderer->DrawMesh(m_playerHeader[i]);
+
+		}
+
+		g_theRenderer->BindTextureViewWithSampler(0, g_testFont->GetTexture(), g_assetLoader->CreateOrGetSampler("point"));
+
+		for (int i = 0; i < MAX_PLAYER_NUM; i++)
+		{
+			float skill1Cooldown = m_curMap->GetPlayerCooldown(i, 1);
+			float skill2Cooldown = m_curMap->GetPlayerCooldown(i, 2);
+			if (skill1Cooldown > 0.f)
+			{
+				g_theRenderer->DrawMesh(m_skill1CoolDown[i]);
+			}
+
+			if (skill2Cooldown > 0.f)
+			{
+				g_theRenderer->DrawMesh(m_skill2CoolDown[i]);
+			}
+		}
+		g_theRenderer->DrawMesh(m_countDown);
+
+		DebugRenderScreen();
+	}
 	
-	for (int i = 0; i < MAX_PLAYER_NUM; i++)
-	{
-		float skill1Cooldown = m_curMap->GetPlayerCooldown(i, 1);
-		float skill2Cooldown = m_curMap->GetPlayerCooldown(i, 2);
-		if (skill1Cooldown > 0.f)
-		{
-			g_theRenderer->DrawMesh(m_skill1CoolDown[i]);
-		}
-
-		if (skill2Cooldown > 0.f)
-		{
-			g_theRenderer->DrawMesh(m_skill2CoolDown[i]);
-		}
-	}
-	g_theRenderer->DrawMesh(m_countDown);
-
-	DebugRenderScreen();
 }
 
 void Game::DeleteGarbageEntities()
@@ -655,9 +791,13 @@ void Game::LoadResources()
 {
 	// Load Projectile Definition
 	ProjectileDef* apple = new ProjectileDef();
+	apple->meshName = "Apple";
 	m_projectileInfo["Apple"] = apple;
 
 	ProjectileDef* bullet = new ProjectileDef();
+	bullet->meshName = "Bullet";
+	bullet->damageCoef = 20.f;
+	bullet->velocity = 30.f;
 	m_projectileInfo["Bullet"] = bullet;
 
 	ProjectileDef* appleRain = new ProjectileDef();
@@ -665,30 +805,40 @@ void Game::LoadResources()
 	m_projectileInfo["AppleRain"] = appleRain;
 
 	ProjectileDef* rope = new ProjectileDef();
+	rope->meshName = "Rope";
 	rope->size = 2.f;
+	rope->existTime = 2.f;
+	rope->velocity = 50.f;
 	rope->damageCoef = 0.f;
 	m_projectileInfo["Rope"] = rope;
 
 	ProjectileDef* claw = new ProjectileDef();
+	claw->meshName = "Claw";
 	claw->size = 2.f;
+	claw->existTime = 1.5f;
+	claw->velocity = 70.f;
 	claw->damageCoef = 0.f;
 	m_projectileInfo["Claw"] = claw;
 
 	// Load Skill Definition
 	SkillDefinition* appleAttack = new SkillDefinition(apple);
 	appleAttack->SetSkillType(SKILL_NEWTON_NORMAL_ATTACK);
+	appleAttack->cooldown = 0.3f;
 	m_skillInfo["Newton_0"] = appleAttack;
 
 	SkillDefinition* appleSkill = new SkillDefinition(appleRain);
 	appleSkill->SetSkillType(SKILL_NEWTON_SKILL_1);
+	appleSkill->cooldown = 5.f;
 	m_skillInfo["Newton_1"] = appleSkill;
 
 	SkillDefinition* dashSkill = new SkillDefinition(nullptr);
 	dashSkill->SetSkillType(SKILL_NEWTON_SKILL_2);
+	dashSkill->cooldown = 2.f;
 	m_skillInfo["Newton_2"] = dashSkill;
 
 	SkillDefinition* bulletSkill = new SkillDefinition(bullet);
 	bulletSkill->SetSkillType(SKILL_JONES_NORMAL_ATTACK);
+	bulletSkill->cooldown = 0.8f;
 	m_skillInfo["Jones_0"] = bulletSkill;
 
 	SkillDefinition* ropeSkill = new SkillDefinition(rope);
@@ -763,4 +913,10 @@ void Game::AdjustAmbient(float deltaTime)
 void Game::SetAmbientChangeAmount(float amount)
 {
 	ambientChangeAmount = amount;
+}
+
+void Game::WinGame(int playerID)
+{
+	m_isWinGame = true;
+	m_winPlayerID = playerID;
 }

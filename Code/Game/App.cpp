@@ -221,7 +221,10 @@ bool App::HandleKeyPressed(unsigned char keyCode )
 		m_isDevConsoleOn = !m_isDevConsoleOn;
 		break;
 	case KEY_F8:
-		Restart();
+		if(m_theGame->IsWinning())
+		{
+			Restart();
+		}
 		break;
 	case KEY_F9:
 		g_assetLoader->ReloadShaderStageWithPath("Data/Shaders/default_bitangentAsColor.1.hlsl");

@@ -58,6 +58,10 @@ public:
 	SoundID m_soundList[NUM_SOUND_TYPE];
 	SoundPlaybackID m_soundPlaybackList[NUM_SOUND_TYPE];
 
+	// Gameplay
+	void WinGame(int playerID);
+	bool IsWinning() { return m_isWinGame; }
+
 	std::map<std::string, VoxelMesh*> m_voxelLib;
 
 private:
@@ -68,6 +72,8 @@ private:
 
 	// Developer
 	bool m_lockCamera = false;
+	bool m_isWinGame = false;
+	int m_winPlayerID = -1;
 
 	// Gameplay
 	Map* m_curMap;
@@ -97,6 +103,11 @@ private:
 	GPUMesh* m_skill3[MAX_PLAYER_NUM];
 	GPUMesh* m_skill3CoolDown[MAX_PLAYER_NUM];
 	GPUMesh* m_playerHeader[MAX_PLAYER_NUM];
+
+	GPUMesh* m_winScreen = nullptr;
+	GPUMesh* m_winPlayerHeader = nullptr;
+	GPUMesh* m_winPlayerName = nullptr;
+	GPUMesh* m_restartText = nullptr;
 
 	// Test mesh
 	VoxelMesh* m_charVoxel[4]; 
