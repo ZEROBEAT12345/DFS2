@@ -84,7 +84,7 @@ private:
 	std::map<std::string, VoxelAnimDef*> m_animInfo;
 
 	// 
-	float m_gameTime = 300.f;
+	float m_gameTime = 100.f;
 	float m_deathZoneStartTime = 50.f;
 
 	// HUD

@@ -526,7 +526,7 @@ void Game::Update(float deltaSeconds)
 			if (skill1Cooldown > 0.f)
 			{
 				CPUMesh coolDown1;
-				CPUMeshAddText(&coolDown1, g_testFont, Vec2(2.f + i * padding, 72.f), 3.f, std::to_string((int)skill1Cooldown + 1), Rgba::BLACK);
+				CPUMeshAddText(&coolDown1, g_testFont, Vec2(7.f + i * padding, 72.f), 2.f, std::to_string((int)skill1Cooldown + 1), Rgba::BLACK);
 
 				if (m_skill1CoolDown[i])
 					delete m_skill1CoolDown[i];
@@ -538,7 +538,7 @@ void Game::Update(float deltaSeconds)
 			if (skill2Cooldown > 0.f)
 			{
 				CPUMesh coolDown2;
-				CPUMeshAddText(&coolDown2, g_testFont, Vec2(7.f + i * padding, 80.f), 3.f, std::to_string((int)skill2Cooldown + 1), Rgba::BLACK);
+				CPUMeshAddText(&coolDown2, g_testFont, Vec2(12.f + i * padding, 72.f), 2.f, std::to_string((int)skill2Cooldown + 1), Rgba::BLACK);
 
 				if (m_skill2CoolDown[i])
 					delete m_skill2CoolDown[i];
@@ -566,8 +566,6 @@ void Game::Update(float deltaSeconds)
 		m_countDown->CreateFromCPUMesh(&countMesh, VERTEX_TYPE_LIGHT);
 
 	}
-
-	
 }
 
 void Game::Render()
@@ -606,7 +604,7 @@ void Game::Render()
 		{
 			CPUMesh restartText = CPUMesh();
 			std::string restartTextString = "PRESS F8 TO RESTART";
-			CPUMeshAddText(&restartText, g_testFont, Vec2(40.f, 60.f), 5.f, restartTextString, Rgba::WHITE);
+			CPUMeshAddText(&restartText, g_testFont, Vec2(30.f, 30.f), 5.f, restartTextString, Rgba::WHITE);
 			m_restartText = new GPUMesh(g_theRenderer->GetCTX());
 			m_restartText->CreateFromCPUMesh(&restartText, VERTEX_TYPE_LIGHT);
 		}
@@ -627,7 +625,7 @@ void Game::Render()
 				g_assetLoader->CreateOrGetSampler("point"));
 		else
 			g_theRenderer->BindTextureViewWithSampler(0,
-				g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/gameplay/newton.png"),
+				g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/gameplay/jones.png"),
 				g_assetLoader->CreateOrGetSampler("point"));
 
 		g_theRenderer->DrawMesh(m_winPlayerHeader);
@@ -662,13 +660,43 @@ void Game::Render()
 		g_theRenderer->DrawMesh(m_healthBar);
 		g_theRenderer->DrawMesh(m_healthBar_2);
 
+		std::string playerHeaderName[MAX_PLAYER_NUM] =
+		{
+			"Data/Images/gameplay/newton.png",
+			"Data/Images/gameplay/jones.png"
+		};
+
+		std::string playerSkill1Name[MAX_PLAYER_NUM] =
+		{
+			"Data/Images/gameplay/apple.png",
+			"Data/Images/gameplay/bullet.png"
+		};
+
+		std::string playerSkill2Name[MAX_PLAYER_NUM] =
+		{
+			"Data/Images/gameplay/apples.png",
+			"Data/Images/gameplay/rope.png"
+		};
+
+		std::string playerSkill3Name[MAX_PLAYER_NUM] =
+		{
+			"Data/Images/gameplay/sword.png",
+			"Data/Images/gameplay/claw.png"
+		};
+
 		for (int i = 0; i < MAX_PLAYER_NUM; i++)
 		{
-			g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile("Data/Images/gameplay/newton.png"), g_assetLoader->CreateOrGetSampler("point"));
+			g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile(playerSkill1Name[i].c_str()), g_assetLoader->CreateOrGetSampler("point"));
 
 			g_theRenderer->DrawMesh(m_skill1[i]);
+
+			g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile(playerSkill2Name[i].c_str()), g_assetLoader->CreateOrGetSampler("point"));
 			g_theRenderer->DrawMesh(m_skill2[i]);
+
+			g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile(playerSkill3Name[i].c_str()), g_assetLoader->CreateOrGetSampler("point"));
 			g_theRenderer->DrawMesh(m_skill3[i]);
+
+			g_theRenderer->BindTextureViewWithSampler(0, g_assetLoader->CreateOrGetTextureViewFromFile(playerHeaderName[i].c_str()), g_assetLoader->CreateOrGetSampler("point"));
 			g_theRenderer->DrawMesh(m_playerHeader[i]);
 
 		}
@@ -691,7 +719,7 @@ void Game::Render()
 		}
 		g_theRenderer->DrawMesh(m_countDown);
 
-		DebugRenderScreen();
+		//DebugRenderScreen();
 	}
 	
 }

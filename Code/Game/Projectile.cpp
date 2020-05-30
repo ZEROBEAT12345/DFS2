@@ -267,6 +267,7 @@ void Projectile::OnHit()
 	case PROJECTILE_NEWTON_SKILL_2:
 		break;
 	case PROJECTILE_JONES_NORMAL_ATTACK:
+		Die();
 		break;
 	case PROJECTILE_JONES_SKILL_1:
 		Die();

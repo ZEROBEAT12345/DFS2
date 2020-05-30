@@ -78,7 +78,7 @@ void Startup( HINSTANCE applicationInstanceHandle )
 	float customAspect = windowAspect;
 	int customWidth = (int)(customHeight * customAspect);
 	//std::string appName = g_gameConfigBackround.GetValue("windowsTitle", "default");
-	std::string appName = "Protogame3D";
+	std::string appName = "Voxel Fighter";
 	
 	g_theWindow = new WindowContext();
 	g_theWindow->CreateClientWindow(appName.c_str(), customWidth, customHeight, &WindowsMessageHandlingProcedure);

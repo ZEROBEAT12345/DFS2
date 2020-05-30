@@ -280,7 +280,7 @@ void Map::Update(float deltaSeconds)
 		{
 			randomAngle = g_random->GetRandomIntInRange(0, 360);
 			particlePrototype.velocity = Vec3(CosDegrees((float)randomAngle), SinDegrees((float)randomAngle), 1.f);
-			//spawnParticle(particlePrototype);
+			spawnParticle(particlePrototype);
 		}
 	}
 
@@ -386,7 +386,7 @@ void Map::Render()
 
 	// Render particles
 	g_theRenderer->BindModelMatrix(Matrix44::MakeTranslation3D(GetMapCenterWorld()));
-	//g_theRenderer->DrawMesh(m_particleMesh);
+	g_theRenderer->DrawMesh(m_particleMesh);
 }
 
 void Map::DeleteGarbageEntities()
